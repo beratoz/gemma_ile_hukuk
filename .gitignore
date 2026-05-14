@@ -11,6 +11,13 @@ __pycache__/
 .venv/
 venv/
 
+# Java / Maven
+target/
+*.class
+.mvn/
+HELP.md
+*.iml
+
 # IDE
 .vscode/
 .idea/

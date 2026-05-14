@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: tck-legaltech-gateway
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+python:
+  service:
+    base-url: http://localhost:8000
+    analyze-path: /api/v1/analyze
+    timeout-seconds: 60
+
+cors:
+  allowed-origins:
+    - http://localhost:3000
+    - http://localhost:5173
