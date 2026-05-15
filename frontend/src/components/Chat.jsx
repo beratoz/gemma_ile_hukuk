@@ -3,7 +3,7 @@ import axios from 'axios'
 import MessageContent from './MessageContent'
 
 const API_URL = 'http://localhost:8080/api/chat'
-const REQUEST_TIMEOUT_MS = 70_000 // gateway 60sn, biraz pay birakiyoruz
+const REQUEST_TIMEOUT_MS = 450_000 // gateway 420sn (7 dk), biraz pay birakiyoruz
 
 export default function Chat() {
   const [messages, setMessages] = useState([])
