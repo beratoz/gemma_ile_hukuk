@@ -11,9 +11,7 @@ python:
   service:
     base-url: http://localhost:8000
     analyze-path: /api/v1/analyze
-    timeout-seconds: 60
+    timeout-seconds: 420
 
 cors:
-  allowed-origins:
-    - http://localhost:3000
-    - http://localhost:5173
+  allowed-origins: http://localhost:3000,http://localhost:5173
