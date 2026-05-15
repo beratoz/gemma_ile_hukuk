@@ -1,6 +1,9 @@
 # Secrets / config
 .env
 
+# Local tooling (not committed)
+.claude/
+
 # Python
 __pycache__/
 *.pyc
