@@ -1,0 +1,1805 @@
+{
+  "adam_kacirma": {
+    "resmi_terim": "adam kaçırma",
+    "ingilizce_karsilik": "kidnapping",
+    "halk_dili_karsiliklari": [
+      "çocuk kaçırma",
+      "birini kaçırmak",
+      "rehin almak",
+      "zorla götürmek",
+      "fidye için kaçırma"
+    ],
+    "iliskili_1216_kavramlari": [
+      "rehin alma",
+      "çocuk kaçırma",
+      "fail",
+      "suç",
+      "kasıt"
+    ]
+  },
+  "adam_oldurme": {
+    "resmi_terim": "adam öldürme",
+    "ingilizce_karsilik": "homicide",
+    "halk_dili_karsiliklari": [
+      "cinayet",
+      "canına kıydı",
+      "vurdu",
+      "bıçakladı",
+      "öldürdü",
+      "infaz etti"
+    ],
+    "iliskili_1216_kavramlari": [
+      "kasten adam öldürme",
+      "taksirle adam öldürme",
+      "taammüden adam öldürme",
+      "kasıt",
+      "fail"
+    ]
+  },
+  "adi_suc": {
+    "resmi_terim": "adi suç",
+    "ingilizce_karsilik": "ordinary offense",
+    "halk_dili_karsiliklari": [
+      "sıradan suç",
+      "basit suç",
+      "normal suç",
+      "alelade suç"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç",
+      "cürüm",
+      "kabahat",
+      "suçun niteliği"
+    ]
+  },
+  "adli_para_cezasi": {
+    "resmi_terim": "adli para cezası",
+    "ingilizce_karsilik": "judicial fine",
+    "halk_dili_karsiliklari": [
+      "para cezası",
+      "mahkeme cezası",
+      "ceza parası",
+      "ödeme cezası",
+      "kesilen ceza"
+    ],
+    "iliskili_1216_kavramlari": [
+      "para cezası",
+      "ceza",
+      "cezanın belirlenmesi",
+      "cezai yaptırım"
+    ]
+  },
+  "adli_sicil": {
+    "resmi_terim": "adli sicil",
+    "ingilizce_karsilik": "criminal record",
+    "halk_dili_karsiliklari": [
+      "sabıka kaydı",
+      "sabıka",
+      "sicil kaydı",
+      "suç kaydı",
+      "sabıkası var"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç",
+      "hükümlü",
+      "ceza",
+      "cezanın ertelenmesi"
+    ]
+  },
+  "agir_hapis_cezasi": {
+    "resmi_terim": "ağır hapis cezası",
+    "ingilizce_karsilik": "heavy imprisonment",
+    "halk_dili_karsiliklari": [
+      "ağır ceza",
+      "uzun hapis",
+      "ağır yatırım",
+      "müebbet gibi",
+      "içeride çürüme"
+    ],
+    "iliskili_1216_kavramlari": [
+      "hapis cezası",
+      "ağırlaştırılmış ömür boyu hapis",
+      "ömür boyu hapis",
+      "ceza",
+      "hürriyeti bağlayıcı ceza"
+    ]
+  },
+  "agirlastirici_sebep": {
+    "resmi_terim": "ağırlaştırıcı sebep",
+    "ingilizce_karsilik": "matter of aggravation",
+    "halk_dili_karsiliklari": [
+      "ağırlaştırıcı neden",
+      "cezayı artıran hal",
+      "cezayı ağırlaştıran",
+      "ağırlaştırıcı hal"
+    ],
+    "iliskili_1216_kavramlari": [
+      "hafifletici sebep",
+      "cezanın belirlenmesi",
+      "ceza",
+      "kasıt"
+    ]
+  },
+  "agirласtirilmis_omur_boyu_hapis": {
+    "resmi_terim": "ağırlaştırılmış ömür boyu hapis",
+    "ingilizce_karsilik": "aggravated life imprisonment",
+    "halk_dili_karsiliklari": [
+      "ağırlaştırılmış müebbet",
+      "ağır müebbet",
+      "tecrit cezası",
+      "en ağır ceza"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ömür boyu hapis",
+      "ağır hapis cezası",
+      "idam cezası",
+      "hapis cezası",
+      "ceza"
+    ]
+  },
+  "asker_kacagi": {
+    "resmi_terim": "asker kaçağı",
+    "ingilizce_karsilik": "deserter",
+    "halk_dili_karsiliklari": [
+      "firar eden asker",
+      "bakaya",
+      "kaçak asker",
+      "askerden kaçan",
+      "firari asker"
+    ],
+    "iliskili_1216_kavramlari": [
+      "firar",
+      "firari",
+      "suç",
+      "fail"
+    ]
+  },
+  "asli_fail": {
+    "resmi_terim": "asli fail",
+    "ingilizce_karsilik": "principal offender",
+    "halk_dili_karsiliklari": [
+      "ana fail",
+      "suçu işleyen",
+      "asıl suçlu",
+      "esas fail",
+      "birincil fail"
+    ],
+    "iliskili_1216_kavramlari": [
+      "fail",
+      "suç ortağı",
+      "suça iştirak",
+      "yardım ve yataklık etmek"
+    ]
+  },
+  "atili_suc": {
+    "resmi_terim": "atılı suç",
+    "ingilizce_karsilik": "imputed offense",
+    "halk_dili_karsiliklari": [
+      "isnat edilen suç",
+      "yüklenen suç",
+      "üzerine atılan suç",
+      "itham edilen suç"
+    ],
+    "iliskili_1216_kavramlari": [
+      "müsnet suç",
+      "iddianame",
+      "suç",
+      "suçun niteliği"
+    ]
+  },
+  "ceza": {
+    "resmi_terim": "ceza",
+    "ingilizce_karsilik": "penalty",
+    "halk_dili_karsiliklari": [
+      "cezalandırma",
+      "yaptırım",
+      "mahkumiyet",
+      "infaz",
+      "yatacak cezası"
+    ],
+    "iliskili_1216_kavramlari": [
+      "cezai yaptırım",
+      "cezanın belirlenmesi",
+      "hapis cezası",
+      "para cezası",
+      "cezalandırma"
+    ]
+  },
+  "ceza_hukuku": {
+    "resmi_terim": "ceza hukuku",
+    "ingilizce_karsilik": "criminal law",
+    "halk_dili_karsiliklari": [
+      "ceza yasası",
+      "suç hukuku",
+      "ceza mevzuatı",
+      "ceza davaları hukuku"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ceza kanunu",
+      "suç",
+      "ceza",
+      "cezai yaptırım"
+    ]
+  },
+  "ceza_hukmunun_infazi": {
+    "resmi_terim": "ceza hükmünün infazı",
+    "ingilizce_karsilik": "execution of sentence",
+    "halk_dili_karsiliklari": [
+      "cezanın uygulanması",
+      "cezanın yerine getirilmesi",
+      "infaz",
+      "cezanın çektirilmesi"
+    ],
+    "iliskili_1216_kavramlari": [
+      "cezanın infazının ertelenmesi",
+      "hükümlü",
+      "infaz koruma memuru",
+      "ceza"
+    ]
+  },
+  "ceza_indirimi": {
+    "resmi_terim": "ceza indirimi",
+    "ingilizce_karsilik": "remission",
+    "halk_dili_karsiliklari": [
+      "ceza kırımı",
+      "indirimli ceza",
+      "ceza düşürme",
+      "iyi hal indirimi",
+      "cezada kırım"
+    ],
+    "iliskili_1216_kavramlari": [
+      "hafifletici sebep",
+      "cezanın belirlenmesi",
+      "şartlı tahliye",
+      "ceza"
+    ]
+  },
+  "ceza_kanunu": {
+    "resmi_terim": "ceza kanunu",
+    "ingilizce_karsilik": "criminal code",
+    "halk_dili_karsiliklari": [
+      "TCK",
+      "ceza yasası",
+      "kanun",
+      "suç kanunu"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ceza hukuku",
+      "ceza",
+      "suç",
+      "cezai yaptırım"
+    ]
+  },
+  "ceza_yargilamalari": {
+    "resmi_terim": "ceza yargılamaları",
+    "ingilizce_karsilik": "criminal proceedings",
+    "halk_dili_karsiliklari": [
+      "ceza davası",
+      "ceza muhakemesi",
+      "ceza duruşması",
+      "yargılama süreci"
+    ],
+    "iliskili_1216_kavramlari": [
+      "iddianame",
+      "ceza hukuku",
+      "ceza",
+      "fezleke"
+    ]
+  },
+  "cezai_yaptirim": {
+    "resmi_terim": "cezai yaptırım",
+    "ingilizce_karsilik": "criminal sanction",
+    "halk_dili_karsiliklari": [
+      "cezai müeyyide",
+      "yaptırım",
+      "ceza tedbiri",
+      "hukuki yaptırım"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ceza",
+      "cezalandırma",
+      "cezanın belirlenmesi",
+      "hapis cezası"
+    ]
+  },
+  "cezalandirma": {
+    "resmi_terim": "cezalandırma",
+    "ingilizce_karsilik": "imposition of penalty",
+    "halk_dili_karsiliklari": [
+      "ceza verme",
+      "ceza kesme",
+      "mahkum etme",
+      "yaptırım uygulama"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ceza",
+      "cezanın belirlenmesi",
+      "cezai yaptırım",
+      "hapis cezası"
+    ]
+  },
+  "cezalarin_birlestirilmesi": {
+    "resmi_terim": "cezaların birleştirilmesi",
+    "ingilizce_karsilik": "consolidation of penalties",
+    "halk_dili_karsiliklari": [
+      "ceza birleştirme",
+      "içtima",
+      "cezaların toplanması",
+      "cezaların içtimaı"
+    ],
+    "iliskili_1216_kavramlari": [
+      "cezanın belirlenmesi",
+      "ceza",
+      "zincirleme suç",
+      "cezai yaptırım"
+    ]
+  },
+  "cezanin_belirlenmesi": {
+    "resmi_terim": "cezanın belirlenmesi",
+    "ingilizce_karsilik": "sentencing",
+    "halk_dili_karsiliklari": [
+      "ceza tayini",
+      "ceza belirleme",
+      "ne kadar ceza alacak",
+      "ceza hesaplama"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ağırlaştırıcı sebep",
+      "hafifletici sebep",
+      "ceza",
+      "cezalandırma"
+    ]
+  },
+  "cezanin_ertelenmesi": {
+    "resmi_terim": "cezanın ertelenmesi",
+    "ingilizce_karsilik": "suspension of the penalty",
+    "halk_dili_karsiliklari": [
+      "ceza erteleme",
+      "ertelenmiş ceza",
+      "cezası ertelendi",
+      "erteleme kararı"
+    ],
+    "iliskili_1216_kavramlari": [
+      "cezanın infazının ertelenmesi",
+      "şartlı tahliye",
+      "ceza",
+      "tahliye"
+    ]
+  },
+  "cezanin_infazinin_ertelenmesi": {
+    "resmi_terim": "cezanın infazının ertelenmesi",
+    "ingilizce_karsilik": "suspension of execution of a penalty",
+    "halk_dili_karsiliklari": [
+      "infaz erteleme",
+      "infazın ertelenmesi",
+      "ceza erteleme",
+      "infaz durdurma"
+    ],
+    "iliskili_1216_kavramlari": [
+      "cezanın ertelenmesi",
+      "ceza hükmünün infazı",
+      "tahliye",
+      "şartlı tahliye"
+    ]
+  },
+  "cezasiz_birakma": {
+    "resmi_terim": "cezasız bırakma",
+    "ingilizce_karsilik": "impunity",
+    "halk_dili_karsiliklari": [
+      "cezasızlık",
+      "yanına kâr kaldı",
+      "ceza almadı",
+      "cezalandırılmama",
+      "paçayı kurtardı"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ceza",
+      "hafifletici sebep",
+      "cezanın ertelenmesi",
+      "masumiyet karinesi"
+    ]
+  },
+  "cismani_zarar": {
+    "resmi_terim": "cismani zarar",
+    "ingilizce_karsilik": "bodily harm",
+    "halk_dili_karsiliklari": [
+      "bedensel zarar",
+      "yaralama",
+      "fiziksel zarar",
+      "darp",
+      "vücut bütünlüğüne zarar"
+    ],
+    "iliskili_1216_kavramlari": [
+      "taksirle yaralama",
+      "suç",
+      "kasıt",
+      "fail"
+    ]
+  },
+  "curum": {
+    "resmi_terim": "cürüm",
+    "ingilizce_karsilik": "felony",
+    "halk_dili_karsiliklari": [
+      "ağır suç",
+      "cinayet gibi suç",
+      "büyük suç",
+      "vahim suç"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç",
+      "kabahat",
+      "adi suç",
+      "suçun niteliği"
+    ]
+  },
+  "cagri_kagidi": {
+    "resmi_terim": "çağrı kağıdı",
+    "ingilizce_karsilik": "subpoena",
+    "halk_dili_karsiliklari": [
+      "mahkeme celbi",
+      "celp",
+      "davetiye",
+      "çağrı belgesi",
+      "mahkeme çağrısı"
+    ],
+    "iliskili_1216_kavramlari": [
+      "iddianame",
+      "ifade almak",
+      "fezleke",
+      "ceza yargılamaları"
+    ]
+  },
+  "cocuk_istismari": {
+    "resmi_terim": "çocuk istismarı",
+    "ingilizce_karsilik": "child abuse",
+    "halk_dili_karsiliklari": [
+      "çocuğa kötü muamele",
+      "çocuk tacizi",
+      "çocuğa şiddet",
+      "çocuğa eziyet",
+      "çocuk ihmali"
+    ],
+    "iliskili_1216_kavramlari": [
+      "çocuk kaçırma",
+      "çocuk suçluluğu",
+      "suç",
+      "insanlık dışı muamele"
+    ]
+  },
+  "cocuk_kacirma": {
+    "resmi_terim": "çocuk kaçırma",
+    "ingilizce_karsilik": "child abduction",
+    "halk_dili_karsiliklari": [
+      "çocuk kaçırma",
+      "bebek kaçırma",
+      "çocuğu alıp kaçma",
+      "çocuk hırsızlığı"
+    ],
+    "iliskili_1216_kavramlari": [
+      "adam kaçırma",
+      "çocuk istismarı",
+      "çocuk suçluluğu",
+      "rehin alma"
+    ]
+  },
+  "cocuk_suclulugu": {
+    "resmi_terim": "çocuk suçluluğu",
+    "ingilizce_karsilik": "juvenile delinquency",
+    "halk_dili_karsiliklari": [
+      "çocuk suçu",
+      "reşit olmayan suç",
+      "küçüklerin suçu",
+      "genç suçlu"
+    ],
+    "iliskili_1216_kavramlari": [
+      "çocuk istismarı",
+      "suç",
+      "fail",
+      "suçlunun ıslahı"
+    ]
+  },
+  "devlete_karsi_suc": {
+    "resmi_terim": "devlete karşı suç",
+    "ingilizce_karsilik": "crime against the State",
+    "halk_dili_karsiliklari": [
+      "devlet aleyhine suç",
+      "vatan hainliği",
+      "devlete ihanet",
+      "devlete karşı eylem"
+    ],
+    "iliskili_1216_kavramlari": [
+      "hükümeti ortadan kaldırmaya teşebbüs etme",
+      "suç",
+      "kasıt",
+      "insanlığa karşı suç"
+    ]
+  },
+  "elkoyma": {
+    "resmi_terim": "elkoyma",
+    "ingilizce_karsilik": "seizure",
+    "halk_dili_karsiliklari": [
+      "el koyma",
+      "müsadere",
+      "zapt etme",
+      "malına el koyma",
+      "haciz"
+    ],
+    "iliskili_1216_kavramlari": [
+      "müsadere",
+      "kaçak eşya",
+      "suç",
+      "tutuklama"
+    ]
+  },
+  "ertelenmis_teslim": {
+    "resmi_terim": "ertelenmiş teslim",
+    "ingilizce_karsilik": "postponed surrender",
+    "halk_dili_karsiliklari": [
+      "teslim erteleme",
+      "gecikmeli teslim",
+      "teslimde erteleme",
+      "ertelenmiş iade"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suçluların iadesi",
+      "tutuklama",
+      "tahliye",
+      "cezanın ertelenmesi"
+    ]
+  },
+  "fail": {
+    "resmi_terim": "fail",
+    "ingilizce_karsilik": "perpetrator",
+    "halk_dili_karsiliklari": [
+      "suçlu",
+      "sanık",
+      "zanlı",
+      "suçu işleyen kişi",
+      "şüpheli"
+    ],
+    "iliskili_1216_kavramlari": [
+      "asli fail",
+      "suç ortağı",
+      "suça iştirak",
+      "kasıt",
+      "suç"
+    ]
+  },
+  "fezleke": {
+    "resmi_terim": "fezleke",
+    "ingilizce_karsilik": "summary of proceedings",
+    "halk_dili_karsiliklari": [
+      "soruşturma özeti",
+      "dosya özeti",
+      "savcılık fezlekesi",
+      "tahkikat raporu"
+    ],
+    "iliskili_1216_kavramlari": [
+      "iddianame",
+      "ceza yargılamaları",
+      "ifade almak",
+      "suç"
+    ]
+  },
+  "firar": {
+    "resmi_terim": "firar",
+    "ingilizce_karsilik": "desertion",
+    "halk_dili_karsiliklari": [
+      "kaçma",
+      "kaçış",
+      "cezaevinden kaçma",
+      "firar etme",
+      "tüyme"
+    ],
+    "iliskili_1216_kavramlari": [
+      "firari",
+      "asker kaçağı",
+      "tutuklama",
+      "yakalama"
+    ]
+  },
+  "firari": {
+    "resmi_terim": "firari",
+    "ingilizce_karsilik": "fugitive",
+    "halk_dili_karsiliklari": [
+      "kaçak",
+      "kaçan kişi",
+      "aranan kişi",
+      "firar eden",
+      "kaçak sanık"
+    ],
+    "iliskili_1216_kavramlari": [
+      "firar",
+      "asker kaçağı",
+      "yakalama",
+      "tutuklama"
+    ]
+  },
+  "hafifletici_sebep": {
+    "resmi_terim": "hafifletici sebep",
+    "ingilizce_karsilik": "matter of mitigation",
+    "halk_dili_karsiliklari": [
+      "hafifletici neden",
+      "cezayı azaltan",
+      "iyi hal",
+      "ceza indirimi sebebi",
+      "tahrik"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ağırlaştırıcı sebep",
+      "cezanın belirlenmesi",
+      "ceza indirimi",
+      "ceza"
+    ]
+  },
+  "hakaret": {
+    "resmi_terim": "hakaret",
+    "ingilizce_karsilik": "defamation",
+    "halk_dili_karsiliklari": [
+      "küfür",
+      "sövme",
+      "aşağılama",
+      "ağır laf etme",
+      "şerefine laf etme",
+      "iftira"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç",
+      "fail",
+      "müsnet suç",
+      "ceza"
+    ]
+  },
+  "hapis": {
+    "resmi_terim": "hapis",
+    "ingilizce_karsilik": "confinement",
+    "halk_dili_karsiliklari": [
+      "içeri atma",
+      "kodese tıkma",
+      "hapse girme",
+      "içeride yatma",
+      "tutuklanma"
+    ],
+    "iliskili_1216_kavramlari": [
+      "hapis cezası",
+      "tutuklama",
+      "hürriyeti bağlayıcı ceza",
+      "ceza"
+    ]
+  },
+  "hapis_cezasi": {
+    "resmi_terim": "hapis cezası",
+    "ingilizce_karsilik": "imprisonment",
+    "halk_dili_karsiliklari": [
+      "hapis yatma",
+      "cezaevine girme",
+      "içeride kalma",
+      "yatacak ceza",
+      "kodese düşme"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ağır hapis cezası",
+      "ömür boyu hapis",
+      "hürriyeti bağlayıcı ceza",
+      "ceza",
+      "hapis"
+    ]
+  },
+  "hukuka_aykiri_fiil": {
+    "resmi_terim": "hukuka aykırı fiil",
+    "ingilizce_karsilik": "wrongful act",
+    "halk_dili_karsiliklari": [
+      "yasadışı hareket",
+      "kanuna aykırı davranış",
+      "hukuk dışı eylem",
+      "yasa dışı fiil"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç",
+      "kasıt",
+      "taksir",
+      "fail"
+    ]
+  },
+  "hukmu_aciklanmasinin_geri_birakilmasi": {
+    "resmi_terim": "hükmün açıklanmasının geri bırakılması",
+    "ingilizce_karsilik": "suspension of the pronouncement of the judgement",
+    "halk_dili_karsiliklari": [
+      "HAGB",
+      "ceza erteleme",
+      "hüküm geri bırakma",
+      "düşme kararı",
+      "ceza açıklanmadı"
+    ],
+    "iliskili_1216_kavramlari": [
+      "cezanın ertelenmesi",
+      "şartlı tahliye",
+      "ceza",
+      "cezanın belirlenmesi"
+    ]
+  },
+  "hukumeti_ortadan_kaldirmaya_tesebbus": {
+    "resmi_terim": "hükümeti ortadan kaldırmaya teşebbüs etme",
+    "ingilizce_karsilik": "attempt to overthrow the Government",
+    "halk_dili_karsiliklari": [
+      "darbe girişimi",
+      "hükümet devirme",
+      "darbe teşebbüsü",
+      "devleti yıkma girişimi"
+    ],
+    "iliskili_1216_kavramlari": [
+      "devlete karşı suç",
+      "suça teşebbüs",
+      "kasıt",
+      "suç"
+    ]
+  },
+  "hukumlu": {
+    "resmi_terim": "hükümlü",
+    "ingilizce_karsilik": "sentenced person",
+    "halk_dili_karsiliklari": [
+      "mahkum",
+      "cezalı",
+      "yatan",
+      "kodeste olan",
+      "hüküm giymiş"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ceza",
+      "hapis cezası",
+      "şartlı tahliye",
+      "tahliye",
+      "suçlunun ıslahı"
+    ]
+  },
+  "hurriyeti_baglayici_ceza": {
+    "resmi_terim": "hürriyeti bağlayıcı ceza",
+    "ingilizce_karsilik": "custodial sentence",
+    "halk_dili_karsiliklari": [
+      "hapis cezası",
+      "özgürlüğü kısıtlayan ceza",
+      "yatacak ceza",
+      "içeri tıkma cezası"
+    ],
+    "iliskili_1216_kavramlari": [
+      "hapis cezası",
+      "hapis",
+      "ceza",
+      "ağır hapis cezası"
+    ]
+  },
+  "idam_cezasi": {
+    "resmi_terim": "idam cezası",
+    "ingilizce_karsilik": "capital punishment",
+    "halk_dili_karsiliklari": [
+      "ölüm cezası",
+      "asmak",
+      "idam",
+      "ölüme mahkum etme",
+      "darağacı"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ölüm cezası",
+      "ceza",
+      "ağır hapis cezası",
+      "ağırlaştırılmış ömür boyu hapis"
+    ]
+  },
+  "iddianame": {
+    "resmi_terim": "iddianame",
+    "ingilizce_karsilik": "indictment",
+    "halk_dili_karsiliklari": [
+      "savcılık iddianamesi",
+      "suçlama belgesi",
+      "dava açma yazısı",
+      "savcılık yazısı"
+    ],
+    "iliskili_1216_kavramlari": [
+      "iddianame hazırlamak/sunmak",
+      "iddianamenin kabulü",
+      "fezleke",
+      "ceza yargılamaları"
+    ]
+  },
+  "iddianame_hazirlamak_sunmak": {
+    "resmi_terim": "iddianame hazırlamak/sunmak",
+    "ingilizce_karsilik": "to file an indictment",
+    "halk_dili_karsiliklari": [
+      "iddianame yazmak",
+      "dava açmak",
+      "suçlama hazırlamak",
+      "savcılık iddianamesi düzenlemek"
+    ],
+    "iliskili_1216_kavramlari": [
+      "iddianame",
+      "iddianamenin kabulü",
+      "fezleke",
+      "ceza yargılamaları"
+    ]
+  },
+  "iddianamenin_kabulu": {
+    "resmi_terim": "iddianamenin kabulü",
+    "ingilizce_karsilik": "admission of indictment",
+    "halk_dili_karsiliklari": [
+      "iddianame kabul edildi",
+      "dava açıldı",
+      "iddianame onayı",
+      "davanın kabulü"
+    ],
+    "iliskili_1216_kavramlari": [
+      "iddianame",
+      "iddianame hazırlamak/sunmak",
+      "ceza yargılamaları",
+      "fezleke"
+    ]
+  },
+  "ifade_almak": {
+    "resmi_terim": "ifade almak",
+    "ingilizce_karsilik": "to take statement",
+    "halk_dili_karsiliklari": [
+      "sorguya çekmek",
+      "ifade istemek",
+      "sorgulamak",
+      "beyan almak",
+      "soru sormak"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ifade vermek",
+      "tutuklama",
+      "fezleke",
+      "yakalama"
+    ]
+  },
+  "ifade_vermek": {
+    "resmi_terim": "ifade vermek",
+    "ingilizce_karsilik": "to give statement",
+    "halk_dili_karsiliklari": [
+      "ifade vermek",
+      "beyan vermek",
+      "konuşmak",
+      "anlatmak",
+      "itiraf etmek"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ifade almak",
+      "fezleke",
+      "iddianame",
+      "yalan beyan"
+    ]
+  },
+  "ihtilas": {
+    "resmi_terim": "ihtilas",
+    "ingilizce_karsilik": "embezzlement",
+    "halk_dili_karsiliklari": [
+      "zimmete geçirme",
+      "para çalma",
+      "yolsuzluk",
+      "devlet malı çalma",
+      "iç etme"
+    ],
+    "iliskili_1216_kavramlari": [
+      "zimmet",
+      "rüşvet",
+      "yolsuzluk",
+      "irtikap",
+      "mali suçlar"
+    ]
+  },
+  "iletisimin_dinlenmesi": {
+    "resmi_terim": "iletişimin dinlenmesi",
+    "ingilizce_karsilik": "interception of communications",
+    "halk_dili_karsiliklari": [
+      "telefon dinleme",
+      "dinleme kararı",
+      "hat dinleme",
+      "gizli dinleme",
+      "iletişim takibi"
+    ],
+    "iliskili_1216_kavramlari": [
+      "telefonun dinlenmesi",
+      "suç",
+      "tutuklama",
+      "elkoyma"
+    ]
+  },
+  "infaz_koruma_memuru": {
+    "resmi_terim": "infaz koruma memuru",
+    "ingilizce_karsilik": "warden",
+    "halk_dili_karsiliklari": [
+      "gardiyan",
+      "cezaevi memuru",
+      "hapishane görevlisi",
+      "bekçi",
+      "koruma memuru"
+    ],
+    "iliskili_1216_kavramlari": [
+      "hükümlü",
+      "ceza hükmünün infazı",
+      "hapis",
+      "tahliye"
+    ]
+  },
+  "insan_kacakcisi": {
+    "resmi_terim": "insan kaçakçısı",
+    "ingilizce_karsilik": "human trafficker",
+    "halk_dili_karsiliklari": [
+      "insan tüccarı",
+      "kaçakçı",
+      "insan taciri",
+      "göçmen kaçakçısı"
+    ],
+    "iliskili_1216_kavramlari": [
+      "insan ticareti",
+      "kaçakçılık",
+      "organize suç",
+      "suç"
+    ]
+  },
+  "insan_ticareti": {
+    "resmi_terim": "insan ticareti",
+    "ingilizce_karsilik": "human trafficking",
+    "halk_dili_karsiliklari": [
+      "insan kaçakçılığı",
+      "köle ticareti",
+      "fuhuşa zorlama",
+      "zorla çalıştırma",
+      "adam satma"
+    ],
+    "iliskili_1216_kavramlari": [
+      "insan kaçakçısı",
+      "kaçakçılık",
+      "organize suç",
+      "suç"
+    ]
+  },
+  "insanliga_karsi_suc": {
+    "resmi_terim": "insanlığa karşı suç",
+    "ingilizce_karsilik": "crime against humanity",
+    "halk_dili_karsiliklari": [
+      "insanlık suçu",
+      "savaş suçu",
+      "soykırım",
+      "insanlığa karşı eylem"
+    ],
+    "iliskili_1216_kavramlari": [
+      "devlete karşı suç",
+      "suç",
+      "kasıt",
+      "insanlık dışı muamele"
+    ]
+  },
+  "insanlik_disi_muamele": {
+    "resmi_terim": "insanlık dışı muamele",
+    "ingilizce_karsilik": "inhumane treatment",
+    "halk_dili_karsiliklari": [
+      "işkence",
+      "eziyet",
+      "kötü muamele",
+      "zalimce davranış",
+      "insanlık dışı davranış"
+    ],
+    "iliskili_1216_kavramlari": [
+      "insanlığa karşı suç",
+      "çocuk istismarı",
+      "suç",
+      "ceza"
+    ]
+  },
+  "irtikap": {
+    "resmi_terim": "irtikap",
+    "ingilizce_karsilik": "extortion",
+    "halk_dili_karsiliklari": [
+      "zorla para alma",
+      "haraç kesme",
+      "zorla alma",
+      "baskıyla para isteme",
+      "şantaj"
+    ],
+    "iliskili_1216_kavramlari": [
+      "rüşvet",
+      "zimmet",
+      "ihtilas",
+      "yolsuzluk",
+      "mali suçlar"
+    ]
+  },
+  "kabahat": {
+    "resmi_terim": "kabahat",
+    "ingilizce_karsilik": "misdemeanour",
+    "halk_dili_karsiliklari": [
+      "hafif suç",
+      "küçük suç",
+      "düzene aykırılık",
+      "idari suç",
+      "basit kabahat"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç",
+      "cürüm",
+      "adi suç",
+      "ceza",
+      "para cezası"
+    ]
+  },
+  "kacak_esya": {
+    "resmi_terim": "kaçak eşya",
+    "ingilizce_karsilik": "smuggled goods",
+    "halk_dili_karsiliklari": [
+      "kaçak mal",
+      "gümrük kaçağı",
+      "yasadışı eşya",
+      "kaçak ürün"
+    ],
+    "iliskili_1216_kavramlari": [
+      "kaçakçılık",
+      "elkoyma",
+      "müsadere",
+      "suç"
+    ]
+  },
+  "kacakcilik": {
+    "resmi_terim": "kaçakçılık",
+    "ingilizce_karsilik": "smuggling",
+    "halk_dili_karsiliklari": [
+      "mal kaçırma",
+      "gümrük kaçakçılığı",
+      "yasadışı ticaret",
+      "kaçak iş",
+      "uyuşturucu kaçakçılığı"
+    ],
+    "iliskili_1216_kavramlari": [
+      "kaçak eşya",
+      "organize suç",
+      "insan ticareti",
+      "mali suçlar",
+      "suç"
+    ]
+  },
+  "kacma_ve_delil_karartma_suphesi": {
+    "resmi_terim": "kaçma ve delil karartma şüphesi",
+    "ingilizce_karsilik": "the risk of absconding and tampering with evidence",
+    "halk_dili_karsiliklari": [
+      "kaçma şüphesi",
+      "delil karartma",
+      "kaçma riski",
+      "delilleri yok etme",
+      "saklanma tehlikesi"
+    ],
+    "iliskili_1216_kavramlari": [
+      "tutuklama",
+      "yakalama",
+      "elkoyma",
+      "suç"
+    ]
+  },
+  "kasit": {
+    "resmi_terim": "kasıt",
+    "ingilizce_karsilik": "intention",
+    "halk_dili_karsiliklari": [
+      "bilerek yapma",
+      "isteyerek",
+      "kasten",
+      "bile bile",
+      "niyet",
+      "taammüt"
+    ],
+    "iliskili_1216_kavramlari": [
+      "taksir",
+      "kasten adam öldürme",
+      "fail",
+      "suçun manevi unsurları"
+    ]
+  },
+  "kasten_adam_oldurme": {
+    "resmi_terim": "kasten adam öldürme",
+    "ingilizce_karsilik": "murder",
+    "halk_dili_karsiliklari": [
+      "cinayet",
+      "bilerek öldürme",
+      "tasarlayarak öldürme",
+      "kasıtlı cinayet",
+      "adam vurma"
+    ],
+    "iliskili_1216_kavramlari": [
+      "adam öldürme",
+      "taammüden adam öldürme",
+      "kasıt",
+      "fail",
+      "ağırlaştırıcı sebep"
+    ]
+  },
+  "mali_suclar": {
+    "resmi_terim": "mali suçlar",
+    "ingilizce_karsilik": "fiscal offences",
+    "halk_dili_karsiliklari": [
+      "ekonomik suçlar",
+      "vergi suçu",
+      "mali dolandırıcılık",
+      "kara para",
+      "finansal suç"
+    ],
+    "iliskili_1216_kavramlari": [
+      "zimmet",
+      "ihtilas",
+      "rüşvet",
+      "yolsuzluk",
+      "irtikap"
+    ]
+  },
+  "masumiyet_karinesi": {
+    "resmi_terim": "masumiyet karinesi",
+    "ingilizce_karsilik": "presumption of innocence",
+    "halk_dili_karsiliklari": [
+      "suçsuzluk karinesi",
+      "suçluluğu kanıtlanana kadar masum",
+      "masum sayılma",
+      "suçu ispat edilmemiş"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç",
+      "fail",
+      "ceza yargılamaları",
+      "iddianame"
+    ]
+  },
+  "mesru_mudafaa": {
+    "resmi_terim": "meşru müdafaa",
+    "ingilizce_karsilik": "self-defence",
+    "halk_dili_karsiliklari": [
+      "kendini savunma",
+      "nefsi müdafaa",
+      "meşru savunma",
+      "kendini koruma",
+      "savunma hakkı"
+    ],
+    "iliskili_1216_kavramlari": [
+      "hukuka aykırı fiil",
+      "kasıt",
+      "cezasız bırakma",
+      "hafifletici sebep"
+    ]
+  },
+  "musadere": {
+    "resmi_terim": "müsadere",
+    "ingilizce_karsilik": "confiscation",
+    "halk_dili_karsiliklari": [
+      "el koyma",
+      "devlete devretme",
+      "mallara el koyma",
+      "zoralım",
+      "haciz"
+    ],
+    "iliskili_1216_kavramlari": [
+      "elkoyma",
+      "kaçak eşya",
+      "cezai yaptırım",
+      "suç"
+    ]
+  },
+  "musnet_suc": {
+    "resmi_terim": "müsnet suç",
+    "ingilizce_karsilik": "imputed offence",
+    "halk_dili_karsiliklari": [
+      "isnat edilen suç",
+      "yüklenen suç",
+      "atılı suç",
+      "itham edilen suç"
+    ],
+    "iliskili_1216_kavramlari": [
+      "atılı suç",
+      "iddianame",
+      "suçun niteliği",
+      "suç"
+    ]
+  },
+  "organize_suc": {
+    "resmi_terim": "organize suç",
+    "ingilizce_karsilik": "organized crime",
+    "halk_dili_karsiliklari": [
+      "örgütlü suç",
+      "çete suçu",
+      "mafya",
+      "suç örgütü",
+      "organize suç çetesi"
+    ],
+    "iliskili_1216_kavramlari": [
+      "örgütlü suçla mücadele",
+      "suç",
+      "kaçakçılık",
+      "insan ticareti"
+    ]
+  },
+  "olum_cezasi": {
+    "resmi_terim": "ölüm cezası",
+    "ingilizce_karsilik": "death penalty",
+    "halk_dili_karsiliklari": [
+      "idam",
+      "ölüm hükmü",
+      "idam cezası",
+      "ölüme mahkumiyet"
+    ],
+    "iliskili_1216_kavramlari": [
+      "idam cezası",
+      "ceza",
+      "ağırlaştırılmış ömür boyu hapis",
+      "ömür boyu hapis"
+    ]
+  },
+  "omur_boyu_hapis": {
+    "resmi_terim": "ömür boyu hapis",
+    "ingilizce_karsilik": "life imprisonment",
+    "halk_dili_karsiliklari": [
+      "müebbet",
+      "müebbet hapis",
+      "ömür boyu yatma",
+      "süresiz hapis"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ağırlaştırılmış ömür boyu hapis",
+      "ağır hapis cezası",
+      "hapis cezası",
+      "ceza"
+    ]
+  },
+  "orgutlu_sucla_mucadele": {
+    "resmi_terim": "örgütlü suçla mücadele",
+    "ingilizce_karsilik": "fight against organised crime",
+    "halk_dili_karsiliklari": [
+      "çeteyle mücadele",
+      "mafyayla savaş",
+      "organize suçla savaş",
+      "suç örgütüne operasyon"
+    ],
+    "iliskili_1216_kavramlari": [
+      "organize suç",
+      "suç",
+      "kaçakçılık",
+      "insan ticareti"
+    ]
+  },
+  "para_cezasi": {
+    "resmi_terim": "para cezası",
+    "ingilizce_karsilik": "fine",
+    "halk_dili_karsiliklari": [
+      "ceza parası",
+      "maddi ceza",
+      "para kesme",
+      "ödeme cezası",
+      "mali ceza"
+    ],
+    "iliskili_1216_kavramlari": [
+      "adli para cezası",
+      "ceza",
+      "cezai yaptırım",
+      "cezanın belirlenmesi"
+    ]
+  },
+  "rehin_alma": {
+    "resmi_terim": "rehin alma",
+    "ingilizce_karsilik": "hostage-taking",
+    "halk_dili_karsiliklari": [
+      "rehine alma",
+      "esir alma",
+      "adam rehin alma",
+      "fidye için tutma",
+      "kaçırıp tutma"
+    ],
+    "iliskili_1216_kavramlari": [
+      "rehine",
+      "adam kaçırma",
+      "suç",
+      "kasıt"
+    ]
+  },
+  "rehine": {
+    "resmi_terim": "rehine",
+    "ingilizce_karsilik": "hostage",
+    "halk_dili_karsiliklari": [
+      "rehin tutulan kişi",
+      "esir",
+      "tutsak",
+      "kaçırılan kişi"
+    ],
+    "iliskili_1216_kavramlari": [
+      "rehin alma",
+      "adam kaçırma",
+      "suç",
+      "fail"
+    ]
+  },
+  "rusvet": {
+    "resmi_terim": "rüşvet",
+    "ingilizce_karsilik": "bribery",
+    "halk_dili_karsiliklari": [
+      "çorba parası",
+      "rüşvet yedirme",
+      "rüşvet alma",
+      "yağ çekme",
+      "avuç yağlama",
+      "para yedirme"
+    ],
+    "iliskili_1216_kavramlari": [
+      "irtikap",
+      "zimmet",
+      "yolsuzluk",
+      "ihtilas",
+      "mali suçlar"
+    ]
+  },
+  "sahte_evrak": {
+    "resmi_terim": "sahte evrak",
+    "ingilizce_karsilik": "forged documents",
+    "halk_dili_karsiliklari": [
+      "sahte belge",
+      "düzmece evrak",
+      "uydurma belge",
+      "sahte kağıt",
+      "sahte doküman"
+    ],
+    "iliskili_1216_kavramlari": [
+      "sahtecilik",
+      "sahte para",
+      "suç",
+      "taklit"
+    ]
+  },
+  "sahte_para": {
+    "resmi_terim": "sahte para",
+    "ingilizce_karsilik": "counterfeit money",
+    "halk_dili_karsiliklari": [
+      "kalp para",
+      "sahte banknot",
+      "düzmece para",
+      "taklit para"
+    ],
+    "iliskili_1216_kavramlari": [
+      "sahtecilik",
+      "sahte evrak",
+      "taklit",
+      "suç"
+    ]
+  },
+  "sahtecilik": {
+    "resmi_terim": "sahtecilik",
+    "ingilizce_karsilik": "forgery",
+    "halk_dili_karsiliklari": [
+      "evrak sahteciliği",
+      "sahte belge düzenleme",
+      "sahtekarlık",
+      "düzmece iş",
+      "taklit yapma"
+    ],
+    "iliskili_1216_kavramlari": [
+      "sahte evrak",
+      "sahte para",
+      "taklit",
+      "suç",
+      "fail"
+    ]
+  },
+  "suc": {
+    "resmi_terim": "suç",
+    "ingilizce_karsilik": "crime",
+    "halk_dili_karsiliklari": [
+      "suç işleme",
+      "yasadışı iş",
+      "kanuna aykırı eylem",
+      "cürüm",
+      "kabahat"
+    ],
+    "iliskili_1216_kavramlari": [
+      "fail",
+      "suçun niteliği",
+      "suçun maddi unsurları",
+      "suçun manevi unsurları",
+      "ceza"
+    ]
+  },
+  "suc_ortagi": {
+    "resmi_terim": "suç ortağı",
+    "ingilizce_karsilik": "accomplice",
+    "halk_dili_karsiliklari": [
+      "ortak",
+      "suç arkadaşı",
+      "yardakçı",
+      "işbirlikçi",
+      "yandaş"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suça iştirak",
+      "asli fail",
+      "yardım ve yataklık etmek",
+      "fail"
+    ]
+  },
+  "suca_istirak": {
+    "resmi_terim": "suça iştirak",
+    "ingilizce_karsilik": "complicity",
+    "halk_dili_karsiliklari": [
+      "suça katılma",
+      "suç ortaklığı",
+      "birlikte suç işleme",
+      "iştirak",
+      "suça yardım"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç ortağı",
+      "asli fail",
+      "yardım ve yataklık etmek",
+      "fail"
+    ]
+  },
+  "suca_tesebbus": {
+    "resmi_terim": "suça teşebbüs",
+    "ingilizce_karsilik": "attempt to commit a crime",
+    "halk_dili_karsiliklari": [
+      "suç girişimi",
+      "teşebbüs",
+      "deneme",
+      "suça kalkışma",
+      "suç işlemeye çalışma"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç",
+      "kasıt",
+      "fail",
+      "hükümeti ortadan kaldırmaya teşebbüs etme"
+    ]
+  },
+  "suclularin_iadesi": {
+    "resmi_terim": "suçluların iadesi",
+    "ingilizce_karsilik": "extradition",
+    "halk_dili_karsiliklari": [
+      "iade",
+      "suçlu iadesi",
+      "geri gönderme",
+      "suçluyu teslim etme",
+      "ülkeye iade"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ertelenmiş teslim",
+      "suç",
+      "tutuklama",
+      "firari"
+    ]
+  },
+  "suclunun_islahi": {
+    "resmi_terim": "suçlunun ıslahı",
+    "ingilizce_karsilik": "rehabilitation (of convict)",
+    "halk_dili_karsiliklari": [
+      "ıslah olma",
+      "düzelme",
+      "rehabilitasyon",
+      "topluma kazandırma",
+      "mahkum rehabilitasyonu"
+    ],
+    "iliskili_1216_kavramlari": [
+      "hükümlü",
+      "şartlı tahliye",
+      "ceza",
+      "tahliye"
+    ]
+  },
+  "sucun_maddi_unsurlari": {
+    "resmi_terim": "suçun maddi unsurları",
+    "ingilizce_karsilik": "objective elements of the offence",
+    "halk_dili_karsiliklari": [
+      "maddi unsur",
+      "fiil",
+      "suçun dış unsurları",
+      "suçun fiziki unsurları"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suçun manevi unsurları",
+      "suçun niteliği",
+      "suç",
+      "fail"
+    ]
+  },
+  "sucun_manevi_unsurlari": {
+    "resmi_terim": "suçun manevi unsurları",
+    "ingilizce_karsilik": "subjective elements of the offence",
+    "halk_dili_karsiliklari": [
+      "manevi unsur",
+      "kasıt ve taksir",
+      "suçun iç unsurları",
+      "sübjektif unsur"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suçun maddi unsurları",
+      "kasıt",
+      "taksir",
+      "suçun niteliği"
+    ]
+  },
+  "sucun_niteligi": {
+    "resmi_terim": "suçun niteliği",
+    "ingilizce_karsilik": "nature of the offence",
+    "halk_dili_karsiliklari": [
+      "suçun türü",
+      "suçun vasfı",
+      "suçun cinsi",
+      "suçun karakteri"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç",
+      "suçun maddi unsurları",
+      "suçun manevi unsurları",
+      "ağırlaştırıcı sebep"
+    ]
+  },
+  "sartli_tahliye": {
+    "resmi_terim": "şartlı tahliye",
+    "ingilizce_karsilik": "conditional release",
+    "halk_dili_karsiliklari": [
+      "şartlı salıverme",
+      "erken tahliye",
+      "iyi halden tahliye",
+      "koşullu bırakma",
+      "denetimli tahliye"
+    ],
+    "iliskili_1216_kavramlari": [
+      "tahliye",
+      "cezanın ertelenmesi",
+      "hükümlü",
+      "suçlunun ıslahı"
+    ]
+  },
+  "taammuden_adam_oldurme": {
+    "resmi_terim": "taammüden adam öldürme",
+    "ingilizce_karsilik": "premeditated murder",
+    "halk_dili_karsiliklari": [
+      "planlı cinayet",
+      "tasarlayarak öldürme",
+      "kasıtlı cinayet",
+      "planlı adam öldürme"
+    ],
+    "iliskili_1216_kavramlari": [
+      "adam öldürme",
+      "kasten adam öldürme",
+      "taammüt",
+      "kasıt"
+    ]
+  },
+  "taammut": {
+    "resmi_terim": "taammüt",
+    "ingilizce_karsilik": "premediation",
+    "halk_dili_karsiliklari": [
+      "tasarlama",
+      "planlama",
+      "önceden planlama",
+      "niyet etme",
+      "önceden düşünme"
+    ],
+    "iliskili_1216_kavramlari": [
+      "taammüden adam öldürme",
+      "kasıt",
+      "kasten adam öldürme",
+      "ağırlaştırıcı sebep"
+    ]
+  },
+  "tahliye": {
+    "resmi_terim": "tahliye",
+    "ingilizce_karsilik": "release",
+    "halk_dili_karsiliklari": [
+      "serbest bırakma",
+      "salıverme",
+      "dışarı çıkma",
+      "tahliye olma",
+      "serbest kalma"
+    ],
+    "iliskili_1216_kavramlari": [
+      "şartlı tahliye",
+      "cezanın ertelenmesi",
+      "hükümlü",
+      "tutuklama"
+    ]
+  },
+  "taklit": {
+    "resmi_terim": "taklit",
+    "ingilizce_karsilik": "counterfeit",
+    "halk_dili_karsiliklari": [
+      "sahte",
+      "düzmece",
+      "kopya",
+      "sahte ürün",
+      "taklit mal"
+    ],
+    "iliskili_1216_kavramlari": [
+      "sahtecilik",
+      "sahte para",
+      "sahte evrak",
+      "suç"
+    ]
+  },
+  "taksir": {
+    "resmi_terim": "taksir",
+    "ingilizce_karsilik": "negligence",
+    "halk_dili_karsiliklari": [
+      "ihmal",
+      "dikkatsizlik",
+      "tedbirsizlik",
+      "özensizlik",
+      "bilmeden yapma"
+    ],
+    "iliskili_1216_kavramlari": [
+      "kasıt",
+      "taksirle adam öldürme",
+      "taksirle yaralama",
+      "suçun manevi unsurları"
+    ]
+  },
+  "taksirle_adam_oldurme": {
+    "resmi_terim": "taksirle adam öldürme",
+    "ingilizce_karsilik": "manslaughter",
+    "halk_dili_karsiliklari": [
+      "kazayla öldürme",
+      "ihmalle öldürme",
+      "istemeden öldürme",
+      "dikkatsizlikle ölüm",
+      "kaza sonucu ölüm"
+    ],
+    "iliskili_1216_kavramlari": [
+      "adam öldürme",
+      "taksir",
+      "taksirle yaralama",
+      "fail"
+    ]
+  },
+  "taksirle_yaralama": {
+    "resmi_terim": "taksirle yaralama",
+    "ingilizce_karsilik": "reckless injury",
+    "halk_dili_karsiliklari": [
+      "kazayla yaralama",
+      "dikkatsizlikle yaralama",
+      "ihmalle yaralama",
+      "istemeden yaralama"
+    ],
+    "iliskili_1216_kavramlari": [
+      "taksirle adam öldürme",
+      "taksir",
+      "cismani zarar",
+      "fail"
+    ]
+  },
+  "telefonun_dinlenmesi": {
+    "resmi_terim": "telefonun dinlenmesi",
+    "ingilizce_karsilik": "tapping",
+    "halk_dili_karsiliklari": [
+      "telefon dinleme",
+      "hat takibi",
+      "gizli dinleme",
+      "telefon takibi",
+      "hat dinleme"
+    ],
+    "iliskili_1216_kavramlari": [
+      "iletişimin dinlenmesi",
+      "elkoyma",
+      "suç",
+      "tutuklama"
+    ]
+  },
+  "tutuklama": {
+    "resmi_terim": "tutuklama",
+    "ingilizce_karsilik": "arrest",
+    "halk_dili_karsiliklari": [
+      "gözaltına alma",
+      "yakalama",
+      "içeri alma",
+      "tutuklama kararı",
+      "tevkif"
+    ],
+    "iliskili_1216_kavramlari": [
+      "yakalama",
+      "hapis",
+      "ifade almak",
+      "elkoyma",
+      "firar"
+    ]
+  },
+  "yakalama": {
+    "resmi_terim": "yakalama",
+    "ingilizce_karsilik": "apprehension",
+    "halk_dili_karsiliklari": [
+      "ele geçirme",
+      "yakayı ele verme",
+      "yakalanma",
+      "gözaltı",
+      "tutma"
+    ],
+    "iliskili_1216_kavramlari": [
+      "tutuklama",
+      "firari",
+      "firar",
+      "ifade almak"
+    ]
+  },
+  "yalan_beyan": {
+    "resmi_terim": "yalan beyan",
+    "ingilizce_karsilik": "perjury",
+    "halk_dili_karsiliklari": [
+      "yalan söyleme",
+      "yalan ifade",
+      "yalancı şahitlik",
+      "gerçeğe aykırı beyan",
+      "yeminli yalan"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ifade vermek",
+      "suç",
+      "sahtecilik",
+      "fail"
+    ]
+  },
+  "yardim_ve_yataklik": {
+    "resmi_terim": "yardım ve yataklık etmek",
+    "ingilizce_karsilik": "to aid and abet",
+    "halk_dili_karsiliklari": [
+      "yardım etme",
+      "yataklık yapma",
+      "suça ortak olma",
+      "yardakçılık",
+      "suça destek verme"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç ortağı",
+      "suça iştirak",
+      "asli fail",
+      "fail"
+    ]
+  },
+  "yolsuzluk": {
+    "resmi_terim": "yolsuzluk",
+    "ingilizce_karsilik": "corruption",
+    "halk_dili_karsiliklari": [
+      "rüşvet",
+      "irtikap",
+      "devletten çalma",
+      "usulsüzlük",
+      "yolsuzluk yapma",
+      "torpil"
+    ],
+    "iliskili_1216_kavramlari": [
+      "rüşvet",
+      "zimmet",
+      "ihtilas",
+      "irtikap",
+      "mali suçlar"
+    ]
+  },
+  "zimmet": {
+    "resmi_terim": "zimmet",
+    "ingilizce_karsilik": "embezzlement",
+    "halk_dili_karsiliklari": [
+      "zimmete geçirme",
+      "iç etme",
+      "devlet malına el koyma",
+      "kasadan çalma",
+      "parayı yemek"
+    ],
+    "iliskili_1216_kavramlari": [
+      "ihtilas",
+      "rüşvet",
+      "yolsuzluk",
+      "irtikap",
+      "mali suçlar"
+    ]
+  },
+  "zincirleme_suc": {
+    "resmi_terim": "zincirleme suç",
+    "ingilizce_karsilik": "successive offense",
+    "halk_dili_karsiliklari": [
+      "müteselsil suç",
+      "art arda suç",
+      "seri suç",
+      "ardışık suç",
+      "peş peşe suç"
+    ],
+    "iliskili_1216_kavramlari": [
+      "suç",
+      "cezaların birleştirilmesi",
+      "cezanın belirlenmesi",
+      "fail"
+    ]
+  }
+}
