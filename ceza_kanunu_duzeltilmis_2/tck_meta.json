@@ -1,0 +1,11 @@
+{
+  "kanun_adi": "Türk Ceza Kanunu",
+  "kanun_no": "5237",
+  "kabul_tarihi": "26/9/2004",
+  "yayim_tarihi": "12/10/2004",
+  "resmi_gazete_sayisi": "25611",
+  "toplam_madde_sayisi": 343,
+  "mulga_madde_sayisi": 3,
+  "kaynak_dosya": "ceza_kanunu.pdf",
+  "ureten": "parse_tck.py + build_rag.py"
+}

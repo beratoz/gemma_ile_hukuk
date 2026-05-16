@@ -1,0 +1,746 @@
+{
+  "kitaplar": [
+    {
+      "sira": "Birinci",
+      "ad": "Genel Hükümler",
+      "full_ad": "Birinci Kitap - Genel Hükümler",
+      "kisimlar": [
+        {
+          "sira": "Birinci",
+          "ad": "Temel İlkeler, Tanımlar Ve Uygulama Alanı",
+          "full_ad": "Birinci Kısım - Temel İlkeler, Tanımlar Ve Uygulama Alanı",
+          "bolumler": [
+            {
+              "sira": "Birinci",
+              "ad": "Temel İlkeler Ve Tanımlar",
+              "full_ad": "Birinci Bölüm - Temel İlkeler Ve Tanımlar",
+              "madde_nolari": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+              ],
+              "madde_araligi": "1-6"
+            },
+            {
+              "sira": "İkinci",
+              "ad": "Kanunun Uygulama Alanı",
+              "full_ad": "İkinci Bölüm - Kanunun Uygulama Alanı",
+              "madde_nolari": [
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19
+              ],
+              "madde_araligi": "7-19"
+            }
+          ]
+        },
+        {
+          "sira": "İkinci",
+          "ad": "Ceza Sorumluluğunun Esasları",
+          "full_ad": "İkinci Kısım - Ceza Sorumluluğunun Esasları",
+          "bolumler": [
+            {
+              "sira": "Birinci",
+              "ad": "Ceza Sorumluluğunun Şahsiliği, Kast Ve Taksir",
+              "full_ad": "Birinci Bölüm - Ceza Sorumluluğunun Şahsiliği, Kast Ve Taksir",
+              "madde_nolari": [
+                20,
+                21,
+                22,
+                23
+              ],
+              "madde_araligi": "20-23"
+            },
+            {
+              "sira": "İkinci",
+              "ad": "Ceza Sorumluluğunu Kaldıran Veya Azaltan Nedenler",
+              "full_ad": "İkinci Bölüm - Ceza Sorumluluğunu Kaldıran Veya Azaltan Nedenler",
+              "madde_nolari": [
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34
+              ],
+              "madde_araligi": "24-34"
+            },
+            {
+              "sira": "Üçüncü",
+              "ad": "Suça Teşebbüs",
+              "full_ad": "Üçüncü Bölüm - Suça Teşebbüs",
+              "madde_nolari": [
+                35,
+                36
+              ],
+              "madde_araligi": "35-36"
+            },
+            {
+              "sira": "Dördüncü",
+              "ad": "Suça İştirak",
+              "full_ad": "Dördüncü Bölüm - Suça İştirak",
+              "madde_nolari": [
+                37,
+                38,
+                39,
+                40,
+                41
+              ],
+              "madde_araligi": "37-41"
+            },
+            {
+              "sira": "Beşinci",
+              "ad": "Suçların İçtimaı",
+              "full_ad": "Beşinci Bölüm - Suçların İçtimaı",
+              "madde_nolari": [
+                42,
+                43,
+                44
+              ],
+              "madde_araligi": "42-44"
+            }
+          ]
+        },
+        {
+          "sira": "Üçüncü",
+          "ad": "Yaptırımlar",
+          "full_ad": "Üçüncü Kısım - Yaptırımlar",
+          "bolumler": [
+            {
+              "sira": "Birinci",
+              "ad": "Cezalar",
+              "full_ad": "Birinci Bölüm - Cezalar",
+              "madde_nolari": [
+                45,
+                46,
+                47,
+                48,
+                49,
+                50,
+                51,
+                52
+              ],
+              "madde_araligi": "45-52"
+            },
+            {
+              "sira": "İkinci",
+              "ad": "Güvenlik Tedbirleri",
+              "full_ad": "İkinci Bölüm - Güvenlik Tedbirleri",
+              "madde_nolari": [
+                53,
+                54,
+                55,
+                56,
+                57,
+                58,
+                59,
+                60
+              ],
+              "madde_araligi": "53-60"
+            },
+            {
+              "sira": "Üçüncü",
+              "ad": "Cezanın Belirlenmesi Ve Bireyselleştirilmesi",
+              "full_ad": "Üçüncü Bölüm - Cezanın Belirlenmesi Ve Bireyselleştirilmesi",
+              "madde_nolari": [
+                62,
+                63
+              ],
+              "madde_araligi": "62-63"
+            },
+            {
+              "sira": "Dördüncü",
+              "ad": "Dava Ve Cezanın Düşürülmesi",
+              "full_ad": "Dördüncü Bölüm - Dava Ve Cezanın Düşürülmesi",
+              "madde_nolari": [
+                64,
+                65,
+                66,
+                67,
+                68,
+                69,
+                70,
+                71,
+                72,
+                73,
+                74,
+                75
+              ],
+              "madde_araligi": "64-75"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sira": "İkinci",
+      "ad": "Özel Hükümler",
+      "full_ad": "İkinci Kitap - Özel Hükümler",
+      "kisimlar": [
+        {
+          "sira": "Birinci",
+          "ad": "Uluslararası Suçlar",
+          "full_ad": "Birinci Kısım - Uluslararası Suçlar",
+          "bolumler": [
+            {
+              "sira": "Birinci",
+              "ad": "Soykırım Ve İnsanlığa Karşı Suçlar",
+              "full_ad": "Birinci Bölüm - Soykırım Ve İnsanlığa Karşı Suçlar",
+              "madde_nolari": [
+                76,
+                77,
+                78
+              ],
+              "madde_araligi": "76-78"
+            },
+            {
+              "sira": "İkinci",
+              "ad": "Göçmen Kaçakçılığı Ve İnsan Ticareti",
+              "full_ad": "İkinci Bölüm - Göçmen Kaçakçılığı Ve İnsan Ticareti",
+              "madde_nolari": [
+                79,
+                80
+              ],
+              "madde_araligi": "79-80"
+            }
+          ]
+        },
+        {
+          "sira": "İkinci",
+          "ad": "Kişilere Karşı Suçlar",
+          "full_ad": "İkinci Kısım - Kişilere Karşı Suçlar",
+          "bolumler": [
+            {
+              "sira": "Birinci",
+              "ad": "Hayata Karşı Suçlar",
+              "full_ad": "Birinci Bölüm - Hayata Karşı Suçlar",
+              "madde_nolari": [
+                81,
+                82,
+                83,
+                84,
+                85
+              ],
+              "madde_araligi": "81-85"
+            },
+            {
+              "sira": "İkinci",
+              "ad": "Vücut Dokunulmazlığına Karşı Suçlar",
+              "full_ad": "İkinci Bölüm - Vücut Dokunulmazlığına Karşı Suçlar",
+              "madde_nolari": [
+                86,
+                87,
+                88,
+                89,
+                90,
+                91,
+                92,
+                93
+              ],
+              "madde_araligi": "86-93"
+            },
+            {
+              "sira": "Üçüncü",
+              "ad": "İşkence Ve Eziyet",
+              "full_ad": "Üçüncü Bölüm - İşkence Ve Eziyet",
+              "madde_nolari": [
+                94,
+                95,
+                96
+              ],
+              "madde_araligi": "94-96"
+            },
+            {
+              "sira": "Dördüncü",
+              "ad": "Koruma, Gözetim, Yardım Veya Bildirim Yükümlülüğünün İhlâli",
+              "full_ad": "Dördüncü Bölüm - Koruma, Gözetim, Yardım Veya Bildirim Yükümlülüğünün İhlâli",
+              "madde_nolari": [
+                97,
+                98
+              ],
+              "madde_araligi": "97-98"
+            },
+            {
+              "sira": "Beşinci",
+              "ad": "Çocuk Düşürtme, Düşürme Veya Kısırlaştırma",
+              "full_ad": "Beşinci Bölüm - Çocuk Düşürtme, Düşürme Veya Kısırlaştırma",
+              "madde_nolari": [
+                99,
+                100,
+                101
+              ],
+              "madde_araligi": "99-101"
+            },
+            {
+              "sira": "Altıncı",
+              "ad": "Cinsel Dokunulmazlığa Karşı Suçlar",
+              "full_ad": "Altıncı Bölüm - Cinsel Dokunulmazlığa Karşı Suçlar",
+              "madde_nolari": [
+                102,
+                103,
+                104,
+                105
+              ],
+              "madde_araligi": "102-105"
+            },
+            {
+              "sira": "Yedinci",
+              "ad": "Hürriyete Karşı Suçlar",
+              "full_ad": "Yedinci Bölüm - Hürriyete Karşı Suçlar",
+              "madde_nolari": [
+                106,
+                107,
+                108,
+                109,
+                110,
+                111,
+                112,
+                113,
+                114,
+                115,
+                116,
+                117,
+                118,
+                119,
+                120,
+                121,
+                122,
+                123,
+                124
+              ],
+              "madde_araligi": "106-124"
+            },
+            {
+              "sira": "Sekizinci",
+              "ad": "Şerefe Karşı Suçlar",
+              "full_ad": "Sekizinci Bölüm - Şerefe Karşı Suçlar",
+              "madde_nolari": [
+                125,
+                126,
+                127,
+                128,
+                129,
+                130,
+                131
+              ],
+              "madde_araligi": "125-131"
+            },
+            {
+              "sira": "Dokuzuncu",
+              "ad": "Özel Hayata Ve Hayatın Gizli Alanına Karşı Suçlar",
+              "full_ad": "Dokuzuncu Bölüm - Özel Hayata Ve Hayatın Gizli Alanına Karşı Suçlar",
+              "madde_nolari": [
+                132,
+                133,
+                134,
+                135,
+                136,
+                137,
+                138,
+                139,
+                140
+              ],
+              "madde_araligi": "132-140"
+            },
+            {
+              "sira": "Onuncu",
+              "ad": "Malvarlığına Karşı Suçlar",
+              "full_ad": "Onuncu Bölüm - Malvarlığına Karşı Suçlar",
+              "madde_nolari": [
+                141,
+                142,
+                143,
+                144,
+                145,
+                146,
+                147,
+                148,
+                149,
+                150,
+                151,
+                152,
+                153,
+                154,
+                155,
+                156,
+                157,
+                158,
+                159,
+                160,
+                161,
+                162,
+                163,
+                164,
+                165,
+                166,
+                167,
+                168,
+                169
+              ],
+              "madde_araligi": "141-169"
+            }
+          ]
+        },
+        {
+          "sira": "Üçüncü",
+          "ad": "Topluma Karşı Suçlar",
+          "full_ad": "Üçüncü Kısım - Topluma Karşı Suçlar",
+          "bolumler": [
+            {
+              "sira": "Birinci",
+              "ad": "Genel Tehlike Yaratan Suçlar",
+              "full_ad": "Birinci Bölüm - Genel Tehlike Yaratan Suçlar",
+              "madde_nolari": [
+                170,
+                171,
+                172,
+                173,
+                174,
+                175,
+                176,
+                177,
+                178,
+                179,
+                180
+              ],
+              "madde_araligi": "170-180"
+            },
+            {
+              "sira": "İkinci",
+              "ad": "Çevreye Karşı Suçlar",
+              "full_ad": "İkinci Bölüm - Çevreye Karşı Suçlar",
+              "madde_nolari": [
+                181,
+                182,
+                183,
+                184
+              ],
+              "madde_araligi": "181-184"
+            },
+            {
+              "sira": "Üçüncü",
+              "ad": "Kamunun Sağlığına Karşı Suçlar",
+              "full_ad": "Üçüncü Bölüm - Kamunun Sağlığına Karşı Suçlar",
+              "madde_nolari": [
+                185,
+                186,
+                187,
+                188,
+                189,
+                190,
+                191,
+                192,
+                193,
+                194,
+                195,
+                196
+              ],
+              "madde_araligi": "185-196"
+            },
+            {
+              "sira": "Dördüncü",
+              "ad": "Kamu Güvenine Karşı Suçlar",
+              "full_ad": "Dördüncü Bölüm - Kamu Güvenine Karşı Suçlar",
+              "madde_nolari": [
+                197,
+                198,
+                199,
+                200,
+                201,
+                202,
+                203,
+                204,
+                205,
+                206,
+                207,
+                208,
+                209,
+                210,
+                211,
+                212
+              ],
+              "madde_araligi": "197-212"
+            },
+            {
+              "sira": "Beşinci",
+              "ad": "Kamu Barışına Karşı Suçlar",
+              "full_ad": "Beşinci Bölüm - Kamu Barışına Karşı Suçlar",
+              "madde_nolari": [
+                213,
+                214,
+                215,
+                216,
+                217,
+                218,
+                219,
+                220,
+                221,
+                222
+              ],
+              "madde_araligi": "213-222"
+            },
+            {
+              "sira": "Altıncı",
+              "ad": "Ulaşım Araçlarına Veya Sabit Platformlara Karşı Suçlar",
+              "full_ad": "Altıncı Bölüm - Ulaşım Araçlarına Veya Sabit Platformlara Karşı Suçlar",
+              "madde_nolari": [
+                223,
+                224
+              ],
+              "madde_araligi": "223-224"
+            },
+            {
+              "sira": "Yedinci",
+              "ad": "Genel Ahlaka Karşı Suçlar",
+              "full_ad": "Yedinci Bölüm - Genel Ahlaka Karşı Suçlar",
+              "madde_nolari": [
+                225,
+                226,
+                227,
+                228,
+                229
+              ],
+              "madde_araligi": "225-229"
+            },
+            {
+              "sira": "Sekizinci",
+              "ad": "Aile Düzenine Karşı Suçlar",
+              "full_ad": "Sekizinci Bölüm - Aile Düzenine Karşı Suçlar",
+              "madde_nolari": [
+                230,
+                231,
+                232,
+                233,
+                234
+              ],
+              "madde_araligi": "230-234"
+            },
+            {
+              "sira": "Dokuzuncu",
+              "ad": "Ekonomi, Sanayi Ve Ticarete İlişkin Suçlar",
+              "full_ad": "Dokuzuncu Bölüm - Ekonomi, Sanayi Ve Ticarete İlişkin Suçlar",
+              "madde_nolari": [
+                235,
+                236,
+                237,
+                238,
+                239,
+                240,
+                241,
+                242
+              ],
+              "madde_araligi": "235-242"
+            },
+            {
+              "sira": "Onuncu",
+              "ad": "Bilişim Alanında Suçlar",
+              "full_ad": "Onuncu Bölüm - Bilişim Alanında Suçlar",
+              "madde_nolari": [
+                243,
+                244,
+                245,
+                246
+              ],
+              "madde_araligi": "243-246"
+            }
+          ]
+        },
+        {
+          "sira": "Dördüncü",
+          "ad": "Millete Ve Devlete Karşı Suçlar Ve Son Hükümler",
+          "full_ad": "Dördüncü Kısım - Millete Ve Devlete Karşı Suçlar Ve Son Hükümler",
+          "bolumler": [
+            {
+              "sira": "Birinci",
+              "ad": "Kamu İdaresinin Güvenilirliğine Ve İşleyişine Karşı Suçlar",
+              "full_ad": "Birinci Bölüm - Kamu İdaresinin Güvenilirliğine Ve İşleyişine Karşı Suçlar",
+              "madde_nolari": [
+                247,
+                248,
+                249,
+                250,
+                251,
+                252,
+                253,
+                254,
+                255,
+                256,
+                257,
+                258,
+                259,
+                260,
+                261,
+                262,
+                263,
+                264,
+                265,
+                266
+              ],
+              "madde_araligi": "247-266"
+            },
+            {
+              "sira": "İkinci",
+              "ad": "Adliyeye Karşı Suçlar",
+              "full_ad": "İkinci Bölüm - Adliyeye Karşı Suçlar",
+              "madde_nolari": [
+                267,
+                268,
+                269,
+                270,
+                271,
+                272,
+                273,
+                274,
+                275,
+                276,
+                277,
+                278,
+                279,
+                280,
+                281,
+                282,
+                283,
+                284,
+                285,
+                286,
+                287,
+                288,
+                289,
+                290,
+                291,
+                292,
+                293,
+                294,
+                295,
+                296,
+                297,
+                298
+              ],
+              "madde_araligi": "267-298"
+            },
+            {
+              "sira": "Üçüncü",
+              "ad": "Devletin Egemenlik Alametlerine Ve Organlarının Saygınlığına Karşı Suçlar",
+              "full_ad": "Üçüncü Bölüm - Devletin Egemenlik Alametlerine Ve Organlarının Saygınlığına Karşı Suçlar",
+              "madde_nolari": [
+                299,
+                300,
+                301
+              ],
+              "madde_araligi": "299-301"
+            },
+            {
+              "sira": "Dördüncü",
+              "ad": "Devletin Güvenliğine Karşı Suçlar",
+              "full_ad": "Dördüncü Bölüm - Devletin Güvenliğine Karşı Suçlar",
+              "madde_nolari": [
+                302,
+                303,
+                304,
+                305,
+                306,
+                307,
+                308
+              ],
+              "madde_araligi": "302-308"
+            },
+            {
+              "sira": "Beşinci",
+              "ad": "Anayasal Düzene Ve Bu Düzenin İşleyişine Karşı Suçlar",
+              "full_ad": "Beşinci Bölüm - Anayasal Düzene Ve Bu Düzenin İşleyişine Karşı Suçlar",
+              "madde_nolari": [
+                309,
+                310,
+                311,
+                312,
+                313,
+                314,
+                315,
+                316
+              ],
+              "madde_araligi": "309-316"
+            },
+            {
+              "sira": "Altıncı",
+              "ad": "Milli Savunmaya Karşı Suçlar",
+              "full_ad": "Altıncı Bölüm - Milli Savunmaya Karşı Suçlar",
+              "madde_nolari": [
+                317,
+                318,
+                319,
+                320,
+                321,
+                322,
+                323,
+                324,
+                325
+              ],
+              "madde_araligi": "317-325"
+            },
+            {
+              "sira": "Yedinci",
+              "ad": "Devlet Sırlarına Karşı Suçlar Ve Casusluk",
+              "full_ad": "Yedinci Bölüm - Devlet Sırlarına Karşı Suçlar Ve Casusluk",
+              "madde_nolari": [
+                326,
+                327,
+                329,
+                330,
+                331,
+                332,
+                333,
+                334,
+                335,
+                336,
+                337,
+                338,
+                339
+              ],
+              "madde_araligi": "326-339"
+            },
+            {
+              "sira": "Sekizinci",
+              "ad": "Yabancı Devletlerle Olan İlişkilere Karşı Suçlar",
+              "full_ad": "Sekizinci Bölüm - Yabancı Devletlerle Olan İlişkilere Karşı Suçlar",
+              "madde_nolari": [
+                340,
+                341,
+                342,
+                343
+              ],
+              "madde_araligi": "340-343"
+            },
+            {
+              "sira": "Dokuzuncu",
+              "ad": "Son Hükümler",
+              "full_ad": "Dokuzuncu Bölüm - Son Hükümler",
+              "madde_nolari": [
+                344,
+                345
+              ],
+              "madde_araligi": "344-345"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
