@@ -3,7 +3,26 @@ import axios from 'axios'
 import MessageContent from './MessageContent'
 
 const API_URL = 'http://localhost:8080/api/chat'
-const REQUEST_TIMEOUT_MS = 450_000 // gateway 420sn (7 dk), biraz pay birakiyoruz
+const REQUEST_TIMEOUT_MS = 660_000 // gateway 600sn (10 dk), 60 sn buffer
+
+// Mutalaa metninden gercekten kullanilan TCK madde numaralarini cikarir.
+// Sirayi metindeki ilk gorunume gore tutar, mukerrerleri eler.
+// Ornek: "TCK Madde 151'e gore... TCK Madde 106 uyarinca..." -> ["151", "106"]
+const TCK_NUMBER_REGEX = /TCK\s+Madde\s+(\d+(?:\/\d+)?)/gi
+function extractUsedArticles(text) {
+  if (!text) return []
+  const matches = [...text.matchAll(TCK_NUMBER_REGEX)]
+  const seen = new Set()
+  const ordered = []
+  for (const m of matches) {
+    const no = m[1]
+    if (!seen.has(no)) {
+      seen.add(no)
+      ordered.push(no)
+    }
+  }
+  return ordered
+}
 
 export default function Chat() {
   const [messages, setMessages] = useState([])
@@ -195,19 +214,49 @@ function MessageBubble({ message }) {
         }`}
       >
         <MessageContent text={message.content} isUser={isUser} />
-        {!isUser && message.meta?.bulunan_madde_numaralari?.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-gray-200 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs text-gray-500 mr-1">Referans:</span>
-            {message.meta.bulunan_madde_numaralari.map((no) => (
-              <span
-                key={no}
-                className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-medium"
-              >
-                Madde {no}
-              </span>
-            ))}
-          </div>
-        )}
+        {!isUser && (() => {
+          // Mutalaadan gercekten kullanilan maddeleri parse et
+          const usedArticles = extractUsedArticles(message.content)
+          // Backend'den gelen retrieved maddeleri al, kullanilmayanlari "diger aday" olarak goster
+          const retrievedArticles = (message.meta?.bulunan_madde_numaralari || []).map(String)
+          const usedSet = new Set(usedArticles)
+          const otherCandidates = retrievedArticles.filter((no) => !usedSet.has(no))
+
+          return (
+            <>
+              {usedArticles.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-gray-200 flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs text-gray-500 mr-1">Kullanilan maddeler:</span>
+                  {usedArticles.map((no) => (
+                    <span
+                      key={no}
+                      className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-medium"
+                    >
+                      Madde {no}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {otherCandidates.length > 0 && (
+                <details className="mt-2 text-xs text-gray-400">
+                  <summary className="cursor-pointer hover:text-gray-600 select-none">
+                    Diger aday maddeler ({otherCandidates.length})
+                  </summary>
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {otherCandidates.map((no) => (
+                      <span
+                        key={no}
+                        className="bg-gray-50 text-gray-500 px-1.5 py-0.5 rounded"
+                      >
+                        M.{no}
+                      </span>
+                    ))}
+                  </div>
+                </details>
+              )}
+            </>
+          )
+        })()}
       </div>
     </div>
   )

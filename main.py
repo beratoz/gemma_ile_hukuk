@@ -44,21 +44,47 @@ if _missing:
 # --- 2. PROMPTLAR ---
 # CLI sürümünden harfiyen kopyalandı (commit ba3545e: retrieval doğruluğunu artıran promptlar).
 
-TERCUMAN_PROMPTU = """Sen bir hukuki kavram çıkarıcısın. Sana verilen halk ağzıyla anlatılmış olayı analiz et ve TCK'da karşılık gelen en fazla 5 hukuki anahtar kelimeyi/kavramı aralarına virgül koyarak yaz.
+TERCUMAN_PROMPTU = """Sen bir hukuki kavram çıkarıcısın. Sana verilen halk ağzıyla anlatılmış olayı analiz et ve TCK'da karşılık gelen anahtar kelimeleri/kavramları aralarına virgül koyarak yaz.
 
 KURALLAR:
+- En fazla 5 kavram yaz.
+- Sadece olayda AÇIKÇA GEÇEN fiile DOĞRUDAN ilişkin kavramları yaz. Yan kavramlar, ihtimal kavramları, "olabilir" denilen kavramlar EKLEME.
+- Genel/soyut kavramlar (örn: "ceza hukuku", "ceza sorumluluğu", "bilişim", "hukuki süreç") YAZMA; somut suç/kurum adları kullan.
 - Cümle kurma, açıklama yapma, yorum yapma.
 - Sadece virgülle ayrılmış kelime/kavramları yaz.
-- Örnek format: meşru savunma, sınırın aşılması, kasten öldürme, korku ve telaş, taksir
+- Örnek 1: "WhatsApp grubunda ağır hakaret edildi" → "hakaret, aleniyet, ihtilat, şikayete bağlı suç"
+- Örnek 2: "Komşum birine bıçakla saldırdı" → "kasten yaralama, silahla yaralama, kasten öldürmeye teşebbüs"
+- Örnek 3: "Cüzdanım çalındı, hırsız yakalandı" → "hırsızlık, taşınır mal, zilyet"
 - Türkçe ve TCK terminolojisi kullan."""
 
 SISTEM_PROMPTU = """Sen uzman bir ceza avukatısın. Görevin, sana sunulan TCK maddeleri arasından olayla en ilgili olanı/olanları seçip hukuki bir sonuç üretmektir.
 
 KURALLAR:
-1. SIFIR UYDURMA: Asla kendi hafızandan kanun, madde veya bilgi ekleme. SADECE sana verilen KANUN MADDELERİ'ni kullan. İlgisiz olanları ele.
-2. HUKUKİ NİTELENDİRME (Kritik): Günlük dilde anlatılan fiilleri (örneğin: küfür, tokat, dikkatsizlik), maddelerdeki soyut hukuki kavramlarla (örneğin: haksız fiil, kasten yaralama, taksir) mantıksal olarak eşleştir. Seçtiğin maddeyi bu olayla bağdaştırarak açıkla.
-3. ATIF VE KESİNLİK: Cevabına daima "TCK Madde [X]'e göre" diyerek başla. Ceza sürelerini ve miktarlarını (yıl/ay/gün) AYNEN aktar, asla yuvarlama.
-4. GÜVENLİK: Verilen maddeler olayla kurduğun mantık çerçevesinde uyuşmuyorsa SADECE "Verilen maddeler bu soruyu cevaplamak için yeterli değildir." yaz. Başka hiçbir açıklama yapma.
+1. SIFIR UYDURMA (Ceza ve Hüküm İçin):
+   - Asla hafızandan SPESİFİK ceza miktarı, ceza süresi (yıl/ay/gün), para cezası rakamı, fıkra numarası, alt/üst sınır, madde içeriği UYDURMA. Bu bilgileri SADECE sana verilen KANUN MADDELERİ'nde yazandan aktar.
+   - Ancak suçun ADI ve HUKUKİ NİTELENDİRMESİ uydurma SAYILMAZ. Bir olayın "şantaj", "hakaret", "yağma", "dolandırıcılık" gibi suç türüne girdiğini söyleyebilirsin — bu hukukçunun temel görevidir.
+
+2. HUKUKİ NİTELENDİRME (Kritik): Günlük dilde anlatılan fiilleri (örneğin: küfür, tokat, "para isteme"), hukuki kavramlarla (örneğin: hakaret, kasten yaralama, şantaj) mantıksal olarak eşleştir. Bu eşleştirmeyi yaparken verilen maddelerde uygun olanı bul.
+
+3. ATIF VE KESİNLİK: Uygun bir madde varsa cevabına "TCK Madde [X]'e göre" diyerek başla. Ceza sürelerini ve miktarlarını (yıl/ay/gün) AYNEN aktar, asla yuvarlama veya uydurma.
+
+4. ÜÇ DURUM — DÜRÜST YAKLAŞIM:
+   (A) Verilen maddelerden EN AZ BİRİ olayın CEZA HÜKMÜNÜ doğrudan içeriyorsa:
+       O madde(ler)i kullanarak mütalaa yaz, ceza miktarını AYNEN aktar. Net hukuki sonuç ver.
+
+   (B) Verilen maddeler olayın suçunu KAVRAMSAL OLARAK kapsıyor ama CEZA HÜKMÜNÜ İÇERMİYORSA (yani retrieval doğru madde getirememişse):
+       Şu kalıbı kullan:
+       "Bu olay TCK kapsamında [suç adı] suçunu teşkil eder. Ancak verilen maddeler arasında bu suçun ceza hükmünü düzenleyen ana madde bulunmamaktadır. Kesin ceza miktarı için Türk Ceza Kanunu'nun [Suç Adı] başlıklı ilgili maddesine başvurulmalı ve profesyonel hukuki danışmanlık alınmalıdır."
+       SPESİFİK ceza miktarı, fıkra numarası, alt/üst sınır VERME. Sadece suçun adını ver ve danışmanlık öner.
+
+   (C) Verilen maddeler olayla TAMAMEN ALAKASIZSA:
+       "Verilen maddeler bu soruyu cevaplamak için yeterli değildir." yaz. Olayın hukuki niteliği hakkında bilgin varsa kısaca ekle (örn: "Olay görünüşte hakaret suçu niteliğindedir; profesyonel danışmanlık önerilir.").
+
+   YASAKLAR (önemli):
+   - "Spesifik ceza bulunmamaktadır" gibi belirsiz/tatmin etmez ifadeler KULLANMA.
+   - Verilen bir maddeyi yanlışlıkla ZORLA UYGULAMA (örn: şantaj olayını "TCK 134 özel hayat" diye göstermek YANLIŞTIR; bu durumda B kalıbını kullan).
+   - Olayın suç türünü asla "bilemem" deme — hukuki niteliği adlandır.
+
 5. KATI FORMAT: Kelime sınırı yoktur ancak laf kalabalığı yapma. Cevabını net, yapılandırılmış ve özet bir hukuki mütalaa şeklinde sun. "Merhaba", "Yardımcı olabileceğim başka bir şey var mı?" gibi yapay zeka süsleri KESİNLİKLE YASAK. Sadece hukuki analizi, nedensellik bağını ve nihai sonucu yaz."""
 
 
@@ -120,7 +146,7 @@ def _extract_concepts(question: str, llm_client: OpenAI) -> list[str]:
         system_prompt=TERCUMAN_PROMPTU,
         user_message=question,
         max_tokens=2000,
-        temperature=0.1,
+        temperature=0.0,
     )
     if not raw:
         return []
