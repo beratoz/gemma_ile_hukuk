@@ -9,17 +9,44 @@ import chromadb
 from sentence_transformers import SentenceTransformer
 
 # --- 1. AYARLAR ---
-JSON_PATH = "C:/Users/berat/Desktop/Gemma_Hukuk/ceza_kanunu_duzeltilmis/tck_maddeler_temiz.json"  # Kaynak JSON
+JSON_PATH = "C:/Users/berat/Desktop/Gemma_Hukuk/ceza_kanunu_duzeltilmis/tck_maddeler_temiz.json"      # Kaynak JSON
+BASLIKLAR_PATH = "C:/Users/berat/Desktop/Gemma_Hukuk/ceza_kanunu_duzeltilmis/tck_basliklar.json"      # LLM-üretilen marjinal başlıklar
+OVERRIDE_PATH = "C:/Users/berat/Desktop/Gemma_Hukuk/ceza_kanunu_duzeltilmis/tck_basliklar_override.json"  # Manuel düzeltme (öncelikli)
 CHROMA_DB_PATH = "C:/Users/berat/Desktop/Gemma_Hukuk/tck_chromadb"        # Hedef DB klasörü
 COLLECTION_NAME = "tck_koleksiyonu_e5"                                     # Koleksiyon adı
 EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-base"                     # E5 çok dilli model
 BATCH_SIZE = 32                                                            # Toplu encode boyutu
 
-# --- 2. JSON DOSYASINI OKU ---
+# --- 2. JSON DOSYALARINI OKU ---
 print("JSON dosyası okunuyor...")
 with open(JSON_PATH, "r", encoding="utf-8") as f:
     maddeler = json.load(f)
-print(f"Toplam {len(maddeler)} madde yüklendi.\n")
+print(f"Toplam {len(maddeler)} madde yüklendi.")
+
+# Marjinal başlıklar (RAG retrieval kalitesini artırır — S1 iyileştirmesi).
+# Sıralama: önce LLM-üretilen başlıklar, ÜZERİNE manuel override.
+basliklar: dict[str, str] = {}
+
+# Önce LLM-üretilen başlıkları yükle (fallback)
+try:
+    with open(BASLIKLAR_PATH, "r", encoding="utf-8") as f:
+        basliklar = json.load(f)
+    bos_sayi = sum(1 for v in basliklar.values() if not v)
+    print(f"LLM-üretilen başlıklar yüklendi: {len(basliklar) - bos_sayi}/{len(basliklar)} dolu.")
+except FileNotFoundError:
+    print(f"UYARI: {BASLIKLAR_PATH} bulunamadı, LLM-üretilen başlıklar atlandı.")
+
+# Sonra manuel override'ı uygula (öncelikli, doğrulanmış başlıklar)
+try:
+    with open(OVERRIDE_PATH, "r", encoding="utf-8") as f:
+        raw_overrides = json.load(f)
+    # Yorum amaçlı `_` ile başlayan anahtarları atla
+    overrides = {k: v for k, v in raw_overrides.items() if not k.startswith("_") and v}
+    onceki = sum(1 for k in overrides if basliklar.get(k))
+    basliklar.update(overrides)
+    print(f"Manuel override uygulandı: {len(overrides)} başlık ({onceki} mevcut başlık üzerine yazıldı).\n")
+except FileNotFoundError:
+    print(f"UYARI: {OVERRIDE_PATH} bulunamadı, sadece LLM-üretilenler kullanılıyor.\n")
 
 # --- 3. EMBEDDING MODELİNİ YÜKLE ---
 print("Embedding modeli yükleniyor (intfloat/multilingual-e5-base)...")
@@ -57,12 +84,21 @@ metadatas = []
 for madde in maddeler:
     madde_no = madde["madde_no"]
     icerik = madde["icerik"]
+    baslik = basliklar.get(str(madde_no), "").strip()
 
-    ids.append(f"madde_{madde_no}")                       # Benzersiz ID
-    documents_for_storage.append(icerik)                  # Saklanacak: orijinal metin
-    texts_to_encode.append("passage: " + icerik)          # Encode edilecek: prefix'li
+    # Zenginleştirilmiş metin: TCK Madde X - <başlık>\n<içerik>
+    # Başlık yoksa sadece içerik ile devam (boş başlık embedding'i bozmasın diye)
+    if baslik:
+        zenginlestirilmis = f"TCK Madde {madde_no} - {baslik}\n{icerik}"
+    else:
+        zenginlestirilmis = icerik
+
+    ids.append(f"madde_{madde_no}")                                # Benzersiz ID
+    documents_for_storage.append(zenginlestirilmis)                # Saklanacak: zenginleştirilmiş metin
+    texts_to_encode.append("passage: " + zenginlestirilmis)        # Encode edilecek: prefix'li + başlıklı
     metadatas.append({
         "madde_no": madde_no,
+        "baslik": baslik or "",
         "kelime_say": madde["kelime_say"]
     })
 
@@ -90,18 +126,22 @@ collection.add(
 print(f"{collection.count()} madde başarıyla kaydedildi.\n")
 
 # --- 8. DOĞRULAMA TESTİ ---
-# Rastgele bir soru ile retrieval'ın doğru çalıştığını kontrol edelim
+# Birkaç farklı soru ile retrieval'ın doğru çalıştığını kontrol edelim
 print("=" * 55)
-print("DOĞRULAMA TESTİ")
+print("DOĞRULAMA TESTLERİ")
 print("=" * 55)
-test_sorusu = "Hırsızlık suçunun cezası nedir?"
-test_vektoru = model.encode(
-    "query: " + test_sorusu,
-    normalize_embeddings=True
-).tolist()
+test_sorulari = [
+    ("Hırsızlık suçunun cezası nedir?", 141),
+    ("Birine hakaret ettim, cezası ne olur?", 125),
+    ("Kasten birini yaraladım, ne ceza alırım?", 86),
+    ("Birini öldürmek istedim ama başaramadım", 81),
+]
+for soru, beklenen_no in test_sorulari:
+    vek = model.encode("query: " + soru, normalize_embeddings=True).tolist()
+    sonuc = collection.query(query_embeddings=[vek], n_results=3)
+    bulunanlar = [m["madde_no"] for m in sonuc["metadatas"][0]]
+    isaret = "✓" if beklenen_no in bulunanlar else "✗"
+    print(f"\n{isaret} Soru: {soru}")
+    print(f"  Beklenen: TCK {beklenen_no} | Bulunan top-3: {bulunanlar}")
 
-sonuc = collection.query(query_embeddings=[test_vektoru], n_results=1)
-print(f"\nTest sorusu: {test_sorusu}")
-print(f"Bulunan madde no: {sonuc['metadatas'][0][0]['madde_no']}")
-print(f"Madde önizleme: {sonuc['documents'][0][0][:200]}...")
 print("\n✓ İndeksleme tamamlandı. Artık chatbot'u çalıştırabilirsin.")
