@@ -3,6 +3,8 @@
 
 # Local tooling (not committed)
 .claude/
+CLAUDE.md
+CONVERSATION_HISTORY.md
 
 # Python
 __pycache__/

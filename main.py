@@ -168,7 +168,7 @@ class AnalyzeRequest(BaseModel):
     soru: str = Field(
         ...,
         min_length=3,
-        max_length=2000,
+        max_length=4000,
         description="Kullanıcının halk ağzıyla yazdığı hukuki olay/soru.",
         examples=["Hırsızlık yapan birinin cezası nedir?"],
     )
@@ -196,8 +196,8 @@ def _llm_chat(
     llm_client: OpenAI,
     system_prompt: str,
     user_message: str,
-    max_tokens: int = 2000,
-    temperature: float = 0.2,
+    max_tokens: int = 3000,
+    temperature: float = 0.3,
 ) -> str:
     """LM Studio'ya istek atar, cevap metnini döndürür. Boş cevap durumlarında güvenli."""
     cevap = llm_client.chat.completions.create(
@@ -269,8 +269,8 @@ def _extract_concepts(
         llm_client=llm_client,
         system_prompt=TERCUMAN_PROMPTU,
         user_message=question,
-        max_tokens=2000,
-        temperature=0.0,
+        max_tokens=3000,
+        temperature=0.3,
     )
     llm_kavramlar = [c.strip() for c in raw.split(",") if c.strip()] if raw else []
 
@@ -465,8 +465,8 @@ def _check_missing_concepts(
         llm_client=llm_client,
         system_prompt=MISSING_CHECK_PROMPT,
         user_message=user_msg,
-        max_tokens=200,
-        temperature=0.0,
+        max_tokens=300,
+        temperature=0.3,
     )
 
     if not raw:
@@ -484,13 +484,15 @@ def _generate_opinion(question: str, articles_text: str, llm_client: OpenAI) -> 
 
     temperature=0.1: hukuki context'te daha tutarlı/katı cevaplar için (yaratıcılık değil,
     determinizm tercih edilir).
+    max_tokens=4000: 5-adımlı per-suç metodoloji + içtima + pratik sonuç için yeterli alan
+    (önceki 3000 cevabı 'Huk' gibi kelime ortasında kesiyordu).
     """
     kullanici_mesaji = f"{articles_text}SORU:\n{question}"
     cevap = _llm_chat(
         llm_client=llm_client,
         system_prompt=SISTEM_PROMPTU,
         user_message=kullanici_mesaji,
-        max_tokens=3000,
+        max_tokens=4000,
         temperature=0.1,
     )
     if not cevap:
