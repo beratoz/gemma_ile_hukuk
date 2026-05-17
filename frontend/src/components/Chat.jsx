@@ -5,20 +5,21 @@ import MessageContent from './MessageContent'
 const API_URL = 'http://localhost:8080/api/chat'
 const REQUEST_TIMEOUT_MS = 660_000 // gateway 600sn (10 dk), 60 sn buffer
 
-// Mutalaa metninden gercekten kullanilan TCK madde numaralarini cikarir.
+// Mutalaa metninden gercekten kullanilan kanun referanslarini cikarir.
+// Multi-corpus destek: TCK, CMK, CGTIK, TCK_GEREKCE, TCK_DOKTRIN.
 // Sirayi metindeki ilk gorunume gore tutar, mukerrerleri eler.
-// Ornek: "TCK Madde 151'e gore... TCK Madde 106 uyarinca..." -> ["151", "106"]
-const TCK_NUMBER_REGEX = /TCK\s+Madde\s+(\d+(?:\/\d+)?)/gi
+// Ornek: "TCK Madde 151'e gore... CMK Madde 91 uyarinca..." -> ["TCK 151", "CMK 91"]
+const LEGAL_REF_REGEX = /(TCK|CMK|CGTIK|TCK_GEREKCE|TCK_DOKTRIN)\s+Madde\s+(\d+(?:\/\d+)?)/gi
 function extractUsedArticles(text) {
   if (!text) return []
-  const matches = [...text.matchAll(TCK_NUMBER_REGEX)]
+  const matches = [...text.matchAll(LEGAL_REF_REGEX)]
   const seen = new Set()
   const ordered = []
   for (const m of matches) {
-    const no = m[1]
-    if (!seen.has(no)) {
-      seen.add(no)
-      ordered.push(no)
+    const ref = `${m[1].toUpperCase()} ${m[2]}` // "TCK 151", "CMK 91"
+    if (!seen.has(ref)) {
+      seen.add(ref)
+      ordered.push(ref)
     }
   }
   return ordered
@@ -215,24 +216,26 @@ function MessageBubble({ message }) {
       >
         <MessageContent text={message.content} isUser={isUser} />
         {!isUser && (() => {
-          // Mutalaadan gercekten kullanilan maddeleri parse et
+          // Mutalaadan gercekten kullanilan referanslari parse et: ["TCK 125", "CMK 91"]
           const usedArticles = extractUsedArticles(message.content)
-          // Backend'den gelen retrieved maddeleri al, kullanilmayanlari "diger aday" olarak goster
+          // Backend'den gelen retrieved kayitlar: ["TCK 125", "CMK 91", ...] (multi-corpus)
           const retrievedArticles = (message.meta?.bulunan_madde_numaralari || []).map(String)
-          const usedSet = new Set(usedArticles)
-          const otherCandidates = retrievedArticles.filter((no) => !usedSet.has(no))
+          const usedSet = new Set(usedArticles.map((s) => s.toUpperCase()))
+          const otherCandidates = retrievedArticles.filter(
+            (ref) => !usedSet.has(String(ref).toUpperCase())
+          )
 
           return (
             <>
               {usedArticles.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-gray-200 flex flex-wrap items-center gap-1.5">
-                  <span className="text-xs text-gray-500 mr-1">Kullanilan maddeler:</span>
-                  {usedArticles.map((no) => (
+                  <span className="text-xs text-gray-500 mr-1">Kullanilan kaynaklar:</span>
+                  {usedArticles.map((ref) => (
                     <span
-                      key={no}
+                      key={ref}
                       className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-medium"
                     >
-                      Madde {no}
+                      {ref}
                     </span>
                   ))}
                 </div>
@@ -240,15 +243,15 @@ function MessageBubble({ message }) {
               {otherCandidates.length > 0 && (
                 <details className="mt-2 text-xs text-gray-400">
                   <summary className="cursor-pointer hover:text-gray-600 select-none">
-                    Diger aday maddeler ({otherCandidates.length})
+                    Diger aday kaynaklar ({otherCandidates.length})
                   </summary>
                   <div className="mt-1.5 flex flex-wrap gap-1">
-                    {otherCandidates.map((no) => (
+                    {otherCandidates.map((ref) => (
                       <span
-                        key={no}
+                        key={ref}
                         className="bg-gray-50 text-gray-500 px-1.5 py-0.5 rounded"
                       >
-                        M.{no}
+                        {ref}
                       </span>
                     ))}
                   </div>
