@@ -1,18 +1,19 @@
-// "TCK Madde X" referanslarini bold + renkli render eder.
-// Ornek: "TCK Madde 141'e gore..." -> "TCK Madde 141" kismi <strong> ile sarilir.
+// "TCK/CMK/CGTIK Madde X" gibi multi-corpus referanslarini bold + renkli render eder.
+// Ornek: "CMK Madde 91'e gore..." -> "CMK Madde 91" kismi <strong> ile sarilir.
+// Desteklenen kaynak kodlari: TCK, CMK, CGTIK, TCK_GEREKCE, TCK_DOKTRIN
 
-const TCK_PATTERN = /TCK\s+Madde\s+\d+(?:\/\d+)?/
-const TCK_SPLIT_REGEX = /(TCK\s+Madde\s+\d+(?:\/\d+)?)/g
+const LEGAL_REF_PATTERN = /(?:TCK|CMK|CGTIK|TCK_GEREKCE|TCK_DOKTRIN)\s+Madde\s+\d+(?:\/\d+)?/
+const LEGAL_REF_SPLIT_REGEX = /((?:TCK|CMK|CGTIK|TCK_GEREKCE|TCK_DOKTRIN)\s+Madde\s+\d+(?:\/\d+)?)/g
 
 export default function MessageContent({ text, isUser }) {
   if (!text) return null
 
-  const parts = text.split(TCK_SPLIT_REGEX)
+  const parts = text.split(LEGAL_REF_SPLIT_REGEX)
 
   return (
     <div className="whitespace-pre-wrap leading-relaxed">
       {parts.map((part, i) =>
-        TCK_PATTERN.test(part) ? (
+        LEGAL_REF_PATTERN.test(part) ? (
           <strong
             key={i}
             className={
