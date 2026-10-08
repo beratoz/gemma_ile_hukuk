@@ -1,12 +1,13 @@
-# Secrets / config
+# ─── Secrets / local config ───────────────────────────────────────────────────
 .env
 
-# Local tooling (not committed)
+# ─── Local AI tooling (not committed) ─────────────────────────────────────────
 .claude/
 CLAUDE.md
 CONVERSATION_HISTORY.md
+.gemini/
 
-# Python
+# ─── Python ───────────────────────────────────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
@@ -15,18 +16,39 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+env/
 
-# Java / Maven
+# ─── ChromaDB vector database (large binary runtime data, rebuilt locally) ────
+tck_chromadb/
+
+# ─── Java / Maven (legacy gateway, replaced by dotnet-gateway) ────────────────
 target/
 *.class
 .mvn/
 HELP.md
 *.iml
 
-# IDE
+# ─── .NET / C# ────────────────────────────────────────────────────────────────
+dotnet-gateway/bin/
+dotnet-gateway/obj/
+dotnet-gateway/*.user
+dotnet-gateway/.vs/
+*.suo
+*.user
+
+# ─── Node / frontend ──────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# ─── IDE ──────────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# OS
+# ─── OS ───────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
