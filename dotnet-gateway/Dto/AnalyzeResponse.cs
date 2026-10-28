@@ -15,4 +15,7 @@ public class AnalyzeResponse
 
     [JsonPropertyName("mutalaa")]
     public string Mutalaa { get; set; } = string.Empty;
+
+    [JsonPropertyName("ek_soru")]
+    public string? EkSoru { get; set; }
 }

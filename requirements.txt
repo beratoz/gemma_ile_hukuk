@@ -1,6 +1,10 @@
-fastapi>=0.115
-uvicorn[standard]>=0.32
-python-dotenv>=1.0
-chromadb>=0.5
-sentence-transformers>=3.0
-openai>=1.50
+# Gemma LM Studio'da çalışır; embedding için yalnızca CPU PyTorch gerekir.
+--index-url https://pypi.org/simple
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.15.0+cpu
+fastapi==0.162.0
+uvicorn[standard]==0.54.0
+python-dotenv==1.2.4
+chromadb==1.5.9
+sentence-transformers==6.2.0
+openai==3.40.0

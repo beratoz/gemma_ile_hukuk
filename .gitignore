@@ -1,11 +1,21 @@
 # ─── Secrets / local config ───────────────────────────────────────────────────
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.json
+secrets.*.json
 
 # ─── Local AI tooling (not committed) ─────────────────────────────────────────
 .claude/
 CLAUDE.md
 CONVERSATION_HISTORY.md
 .gemini/
+.cache/
+models/
+*.gguf
+*.safetensors
 
 # ─── Python ───────────────────────────────────────────────────────────────────
 __pycache__/

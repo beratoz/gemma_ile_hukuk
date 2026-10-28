@@ -28,7 +28,21 @@ public class ChatController : ControllerBase
             return BadRequest(ErrorResponse.Of(400, "Bad Request", message));
         }
 
-        var response = await _analyzeService.AnalyzeAsync(request);
+        var response = await _analyzeService.AnalyzeAsync(request, HttpContext.RequestAborted);
         return Ok(response);
+    }
+
+    [HttpPost("chat/stream")]
+    public async Task Stream([FromBody] ChatRequest request)
+    {
+        var validationResult = await _validator.ValidateAsync(request, HttpContext.RequestAborted);
+        if (!validationResult.IsValid)
+        {
+            Response.StatusCode = 400;
+            var message = string.Join("; ", validationResult.Errors.Select(error => error.ErrorMessage));
+            await Response.WriteAsJsonAsync(ErrorResponse.Of(400, "Bad Request", message), HttpContext.RequestAborted);
+            return;
+        }
+        await _analyzeService.AnalyzeStreamAsync(request, Response, HttpContext.RequestAborted);
     }
 }

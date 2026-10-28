@@ -8,15 +8,18 @@
 
 import asyncio
 import json
+import math
 import os
 import re
-from contextlib import asynccontextmanager
+from collections import Counter, defaultdict
+from contextlib import aclosing, asynccontextmanager
 
 import chromadb
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from openai import OpenAI
+from fastapi.responses import StreamingResponse
+from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 from sentence_transformers import SentenceTransformer
 
@@ -47,18 +50,23 @@ if _missing:
 # --- 2. PROMPTLAR ---
 # CLI sürümünden harfiyen kopyalandı (commit ba3545e: retrieval doğruluğunu artıran promptlar).
 
-TERCUMAN_PROMPTU = """Sen bir hukuki kavram çıkarıcısın. Sana verilen halk ağzıyla anlatılmış olayı analiz et ve TCK'da karşılık gelen anahtar kelimeleri/kavramları aralarına virgül koyarak yaz.
+TERCUMAN_PROMPTU = """Sen bir hukuki kavram çıkarıcısın. Halk ağzıyla anlatılan olayı analiz et ve TCK'daki ilgili somut suç/kurum adlarını çıkar.
 
 KURALLAR:
 - En fazla 5 kavram yaz.
 - Sadece olayda AÇIKÇA GEÇEN fiile DOĞRUDAN ilişkin kavramları yaz. Yan kavramlar, ihtimal kavramları, "olabilir" denilen kavramlar EKLEME.
 - Genel/soyut kavramlar (örn: "ceza hukuku", "ceza sorumluluğu", "bilişim", "hukuki süreç") YAZMA; somut suç/kurum adları kullan.
-- Cümle kurma, açıklama yapma, yorum yapma.
-- Sadece virgülle ayrılmış kelime/kavramları yaz.
-- Örnek 1: "WhatsApp grubunda ağır hakaret edildi" → "hakaret, aleniyet, ihtilat, şikayete bağlı suç"
-- Örnek 2: "Komşum birine bıçakla saldırdı" → "kasten yaralama, silahla yaralama, kasten öldürmeye teşebbüs"
-- Örnek 3: "Cüzdanım çalındı, hırsız yakalandı" → "hırsızlık, taşınır mal, zilyet"
-- Türkçe ve TCK terminolojisi kullan."""
+- Türkçe ve TCK terminolojisi kullan. Açıklama veya Markdown yazma.
+
+ÇIKTI: Sadece JSON yaz: {"kavramlar": ["kavram1"], "ek_soru": null}
+Yalnızca somut olayın hangi fiil olduğu anlaşılamıyorsa veya açık bir belirsizlik
+temel nitelendirmeyi değiştiriyorsa ek_soru alanında TEK kısa soru sor (en çok 240 karakter).
+Genel bilgi ve doğrudan madde sorularında, anlaşılır olaylarda soru SORMA.
+Her olaya yaş, tarih, sabıka, delil gibi rutin sorular sorma; eksik ayrıntıları varsayma.
+Örnek: "Bana bir şey yaptı, suç mu?" → {"kavramlar": [], "ek_soru": "Size tam olarak ne yaptı veya ne söyledi?"}
+Örnek: "Cüzdanımı çaldı" → {"kavramlar": ["hırsızlık", "taşınır mal", "zilyet"], "ek_soru": null}
+Örnek: "Ofise zorla girip eşyamı kırdı ve küfür etti" → {"kavramlar": ["işyeri dokunulmazlığı", "mala zarar verme", "hakaret"], "ek_soru": null}
+"""
 
 SISTEM_PROMPTU = """Sen uzman bir ceza avukatısın. Görevin, sana sunulan kanun/gerekçe/doktrin kaynaklarını kullanarak, olayda BÜTÜN suç boyutlarını tespit edip pratik ve eyleme dönüştürülebilir bir hukuki mütalaa üretmektir.
 
@@ -168,10 +176,19 @@ class AnalyzeRequest(BaseModel):
     soru: str = Field(
         ...,
         min_length=3,
-        max_length=4000,
+        max_length=2000,
         description="Kullanıcının halk ağzıyla yazdığı hukuki olay/soru.",
         examples=["Hırsızlık yapan birinin cezası nedir?"],
     )
+    ek_bilgi: str = Field(default="", max_length=1200)
+    ek_soru: str = Field(default="", max_length=240)
+    ek_soru_yanitlandi: bool = False
+
+    def analysis_question(self) -> str:
+        if not self.ek_soru_yanitlandi:
+            return self.soru
+        bilgi = self.ek_bilgi.strip() or "Ek bilgi verilmedi; eksik hususları varsaymadan koşullu değerlendir."
+        return f"OLAY: {self.soru}\nNETLEŞTİRME SORUSU: {self.ek_soru}\nEK BİLGİ: {bilgi}"
 
 
 class AnalyzeResponse(BaseModel):
@@ -183,6 +200,7 @@ class AnalyzeResponse(BaseModel):
         ..., description="Aşama 2: ChromaDB'den retrieve edilen TCK madde numaraları."
     )
     mutalaa: str = Field(..., description="Aşama 3: LLM'in nihai hukuki mütalaası.")
+    ek_soru: str | None = None
 
 
 class HealthResponse(BaseModel):
@@ -192,15 +210,16 @@ class HealthResponse(BaseModel):
 
 
 # --- 4. RAG YARDIMCI FONKSİYONLARI (CLI sürümünden taşındı) ---
-def _llm_chat(
-    llm_client: OpenAI,
+async def _llm_chat(
+    llm_client: AsyncOpenAI,
     system_prompt: str,
     user_message: str,
     max_tokens: int = 3000,
     temperature: float = 0.3,
+    reasoning_effort: str | None = None,
 ) -> str:
     """LM Studio'ya istek atar, cevap metnini döndürür. Boş cevap durumlarında güvenli."""
-    cevap = llm_client.chat.completions.create(
+    cevap = await llm_client.chat.completions.create(
         model=LM_MODEL_NAME,
         messages=[
             {"role": "system", "content": system_prompt},
@@ -208,6 +227,8 @@ def _llm_chat(
         ],
         temperature=temperature,
         max_tokens=max_tokens,
+        # LM Studio/Gemma destekler; eski OpenAI SDK'larında da extra_body kullanılabilir.
+        extra_body={"reasoning_effort": reasoning_effort} if reasoning_effort else {},
     )
     if cevap.choices and cevap.choices[0].message.content:
         return cevap.choices[0].message.content.strip()
@@ -253,11 +274,12 @@ def _expand_with_halk_dili(question: str, halk_index: dict[str, str]) -> list[st
     return found
 
 
-def _extract_concepts(
+async def _extract_concepts(
     question: str,
-    llm_client: OpenAI,
+    llm_client: AsyncOpenAI,
     halk_index: dict[str, str] | None = None,
-) -> list[str]:
+    allow_clarification: bool = True,
+) -> tuple[list[str], str | None]:
     """Aşama 1: Halk ağzındaki olayı saf hukuki kavramlara dönüştür.
 
     İki kaynak birleştirilir:
@@ -265,14 +287,24 @@ def _extract_concepts(
       (b) Ontoloji tabanlı halk dili → resmi terim eşleştirmesi (deterministik).
     LLM'in kaçırdığı yaygın kelimeler (örn. "küfür" → "hakaret") (b) ile yakalanır.
     """
-    raw = _llm_chat(
+    # Küçük modelin madde numarasından yanlış suç adı tahmin etmesini önle.
+    # Kaynaklar zaten orijinal sorudaki açık referans üzerinden bulunur.
+    if _explicit_article_refs(question) and len(question) < 160 and re.search(
+        r"\b(neyi düzenler|nedir|ne diyor|açıkla|metni|metnini)\b", question.lower()
+    ):
+        return [], None
+    prompt = TERCUMAN_PROMPTU
+    if not allow_clarification:
+        prompt += "\nBu olay için ek soru hakkı kullanıldı. Yeni soru SORMA; ek_soru null olsun. Mevcut bilgilerle kavramları çıkar."
+    raw = await _llm_chat(
         llm_client=llm_client,
-        system_prompt=TERCUMAN_PROMPTU,
+        system_prompt=prompt,
         user_message=question,
-        max_tokens=3000,
+        max_tokens=512,
         temperature=0.3,
+        reasoning_effort="none",
     )
-    llm_kavramlar = [c.strip() for c in raw.split(",") if c.strip()] if raw else []
+    llm_kavramlar, ek_soru = _parse_concepts(raw, allow_clarification)
 
     halk_kavramlar = _expand_with_halk_dili(question, halk_index or {})
 
@@ -284,7 +316,31 @@ def _extract_concepts(
         if k_low not in seen:
             seen.add(k_low)
             merged.append(k)
-    return merged
+    return merged[:8], ek_soru
+
+
+def _parse_concepts(raw: str, allow_clarification: bool) -> tuple[list[str], str | None]:
+    """JSON biçimini doğrula; eski virgüllü cevaplara da tolerans göster."""
+    try:
+        start, end = raw.index("{"), raw.rindex("}") + 1
+        data = json.loads(raw[start:end])
+        concepts = data.get("kavramlar", [])
+        if not isinstance(concepts, list):
+            concepts = []
+        concepts = [c.strip()[:100] for c in concepts if isinstance(c, str) and c.strip()]
+        question = data.get("ek_soru")
+        if not allow_clarification or not isinstance(question, str) or not question.strip():
+            question = None
+        else:
+            # Küçük model birden çok soru döndürürse yalnızca ilkini kullan.
+            question = question.strip().split("?")[0].strip()
+            question = (question[:239] + "?") if question else None
+        return concepts[:5], question
+    except (ValueError, TypeError, AttributeError):
+        # Bozuk JSON'u hukuki arama kavramına dönüştürme.
+        if any(char in raw for char in '{}[]'):
+            return [], None
+        return [c.strip()[:100] for c in raw.split(",") if c.strip()][:5], None
 
 
 def _format_retrieved_hit(
@@ -316,96 +372,135 @@ def _format_retrieved_hit(
     return display_key, block
 
 
+def _search_tokens(text: str) -> list[str]:
+    # Türkçe I/İ ve şapkalı harfleri iki arama kanalında tutarlı işle.
+    normalized = text.translate(str.maketrans({"I": "ı", "İ": "i"})).lower()
+    normalized = normalized.translate(str.maketrans("ıâîû", "iaiu"))
+    stop_words = {"ve", "veya", "ile", "bir", "bu", "su", "o", "da", "de", "mi", "mu", "icin", "gore", "nedir"}
+    return [word for word in re.findall(r"\w+", normalized) if word not in stop_words]
+
+
+def _article_key(meta: dict, doc_id: str) -> str:
+    source = meta.get("kaynak_kodu") or "TCK"
+    number = meta.get("birim_no") or meta.get("madde_no") or meta.get("madde") or doc_id
+    return f"{source} {number}"
+
+
+def _explicit_article_refs(text: str) -> set[str]:
+    matches = re.findall(
+        r"\b(TCK_GEREKCE|TCK_DOKTRIN|TCK|CMK|CGTIK)\s*(?:madde(?:si)?\s*)?(\d+(?:/\d+)?)\b",
+        text, re.IGNORECASE,
+    )
+    return {f"{source.upper()} {number.split('/')[0]}" for source, number in matches}
+
+
+class BM25Index:
+    """Mevcut ChromaDB metinlerinden CPU/RAM üzerinde kurulur; yeni model indirmez."""
+
+    def __init__(self, records: dict):
+        self.hits = []
+        self.lengths = []
+        self.titles = []
+        self.postings = defaultdict(dict)
+        for doc_id, doc, meta in zip(records["ids"], records["documents"], records["metadatas"]):
+            meta = meta or {}
+            if meta.get("mulga") or not doc:
+                continue
+            key = _article_key(meta, doc_id)
+            title_words = _search_tokens(meta.get("baslik", ""))
+            words = _search_tokens(f"{key} {doc}") + title_words * 3
+            position = len(self.hits)
+            self.hits.append({"doc_id": doc_id, "doc": doc, "meta": meta, "display_key": key})
+            self.lengths.append(len(words))
+            self.titles.append(title_words)
+            for word, frequency in Counter(words).items():
+                self.postings[word][position] = frequency
+        self.average_length = sum(self.lengths) / max(1, len(self.lengths)) or 1
+
+    def search(self, text: str, limit: int) -> list[dict]:
+        if limit <= 0:
+            return []
+        scores = defaultdict(float)
+        count = len(self.hits)
+        query_words = _search_tokens(text)
+        for word in set(query_words):
+            matches = self.postings.get(word, {})
+            idf = math.log(1 + (count - len(matches) + 0.5) / (len(matches) + 0.5))
+            for index, frequency in matches.items():
+                length_norm = 0.25 + 0.75 * self.lengths[index] / self.average_length
+                scores[index] += idf * frequency * 2.5 / (frequency + 1.5 * length_norm)
+        # Tam suç/kurum adı, uzun metindeki tesadüfi tekrarların gerisinde kalmasın.
+        for index in scores:
+            if query_words == self.titles[index]:
+                scores[index] *= 1.75
+        ordered = sorted(scores, key=lambda index: (-scores[index], self.hits[index]["doc_id"]))
+        hits, seen = [], set()
+        for index in ordered:
+            hit = self.hits[index]
+            if hit["display_key"] in seen:
+                continue
+            seen.add(hit["display_key"])
+            hits.append(hit)
+            if len(hits) >= limit:
+                break
+        return hits
+
+
 def _retrieve_articles(
     search_text: str,
     embedding_model: SentenceTransformer,
     collection: "chromadb.Collection",
     n_results: int,
     concepts: list[str] | None = None,
-) -> tuple[list[str], str]:
-    """Aşama 2: Multi-query retrieval (K3).
-
-    İki strateji:
-      (a) Eğer `concepts` listesi (Stage 1'in çıkardığı kavramlar) verilmişse:
-          her kavram için ayrı bir ChromaDB sorgusu yapılır, sonuçlar Reciprocal
-          Rank Fusion (RRF) ile birleştirilir. Birden çok suç içeren olaylarda
-          her suç kavramı için spesifik retrieval yapılır → kapsam artar.
-      (b) Yoksa: tek query (eski davranış) — `search_text` ile fallback.
-
-    Returns:
-        (madde_no_listesi, llm'e gönderilecek formatted maddeler_metni)
-    """
-    # Sorgu metinleri listesi — birden fazlaysa multi-query, değilse tek
-    if concepts and len(concepts) >= 2:
-        # Multi-query: her kavram ayrı + tüm kavramlar birleşik bir backup sorgu
-        sorgu_metinleri = [c for c in concepts if c.strip()]
-        # Tüm kavramların birleşimi (eski stil) de dahil — geniş semantic için
-        birlesik = ", ".join(sorgu_metinleri)
-        if birlesik not in sorgu_metinleri:
-            sorgu_metinleri.append(birlesik)
-    else:
-        sorgu_metinleri = [search_text]
-
-    # Her sorgu için top-K retrieval
-    # Per-query K: n_results / num_queries kadar (min 3), ama RRF için biraz daha fazla
+    lexical_index: BM25Index | None = None,
+) -> tuple[list[str], str, list[dict]]:
+    """Dense multi-query + BM25, RRF ile birleşir. LLM'e gönderilen kaynak sayısı artmaz."""
+    queries = list(dict.fromkeys([search_text] + [c for c in (concepts or []) if c.strip()]))
     per_query_k = max(3, min(n_results, 6))
-
-    # RRF parametresi (Reciprocal Rank Fusion sabiti)
-    RRF_K = 60
-
-    # Tüm hits'leri toplama: doc_id -> {score, doc, meta, ids}
     aggregated: dict[str, dict] = {}
 
-    for q_text in sorgu_metinleri:
-        # E5 modeli sorgular için MUTLAKA "query: " öneki ister
-        q_with_prefix = "query: " + q_text
-        q_vec = embedding_model.encode(q_with_prefix, normalize_embeddings=True).tolist()
-        sonuclar = collection.query(
-            query_embeddings=[q_vec],
-            n_results=per_query_k,
-            where={"mulga": False},
-        )
-        docs = sonuclar["documents"][0]
-        metas = sonuclar["metadatas"][0]
-        ids_list = sonuclar["ids"][0]
-        for rank, (doc, meta, doc_id) in enumerate(zip(docs, metas, ids_list), start=1):
-            # display_key bazlı dedup (aynı madde farklı chunk'larda birden fazla gelebilir)
-            kaynak_kodu = (meta.get("kaynak_kodu") or "TCK").strip() or "TCK"
-            birim_no = str(
-                meta.get("birim_no")
-                or meta.get("madde_no")
-                or meta.get("madde")
-                or doc_id
-            )
-            display_key = f"{kaynak_kodu} {birim_no}"
-            rrf_contribution = 1.0 / (RRF_K + rank)
-            if display_key not in aggregated:
-                aggregated[display_key] = {
-                    "score": rrf_contribution,
-                    "doc": doc,
-                    "meta": meta,
-                    "doc_id": doc_id,
-                    "display_key": display_key,
-                }
-            else:
-                # Aynı madde başka sorguda da çıktıysa skoru topla (RRF özelliği)
-                aggregated[display_key]["score"] += rrf_contribution
+    def add_ranking(hits: list[dict]):
+        seen = set()
+        for rank, hit in enumerate(hits, start=1):
+            key = hit["display_key"]
+            # Aynı listenin farklı parçaları aynı maddeye fazladan oy vermesin.
+            if key in seen:
+                continue
+            seen.add(key)
+            contribution = 1 / (60 + rank)
+            if key not in aggregated:
+                aggregated[key] = {**hit, "score": 0, "chunk_scores": defaultdict(float)}
+            entry = aggregated[key]
+            entry["score"] += contribution
+            entry["chunk_scores"][hit["doc_id"]] += contribution
+            if entry["chunk_scores"][hit["doc_id"]] > entry["chunk_scores"][entry["doc_id"]]:
+                entry.update(hit)
 
-    # Skora göre sırala, top-n_results al
-    ranked = sorted(aggregated.values(), key=lambda x: x["score"], reverse=True)
-    top_hits = ranked[:n_results]
+    for query in queries:
+        vector = embedding_model.encode("query: " + query, normalize_embeddings=True).tolist()
+        result = collection.query(query_embeddings=[vector], n_results=per_query_k, where={"mulga": False})
+        hits = []
+        for doc, meta, doc_id in zip(result["documents"][0], result["metadatas"][0], result["ids"][0]):
+            meta = meta or {}
+            if doc and not meta.get("mulga"):
+                hits.append({"doc": doc, "meta": meta, "doc_id": doc_id, "display_key": _article_key(meta, doc_id)})
+        add_ranking(hits)
+        if lexical_index:
+            add_ranking(lexical_index.search(query, per_query_k))
 
-    # Formatla
-    madde_no_listesi: list[str] = []
-    maddeler_metni = ""
-    for i, hit in enumerate(top_hits, start=1):
-        display_key, block = _format_retrieved_hit(
-            hit["doc"], hit["meta"], hit["doc_id"], i
-        )
-        madde_no_listesi.append(display_key)
-        maddeler_metni += block
-
-    return madde_no_listesi, maddeler_metni
+    # Açıkça istenen madde, anlamsal benzerliğin gölgesinde kalmasın.
+    explicit_keys = _explicit_article_refs(search_text)
+    if lexical_index:
+        exact_hits = [hit for hit in lexical_index.hits if hit["display_key"] in explicit_keys]
+        add_ranking(exact_hits)
+    ranked = sorted(aggregated.values(), key=lambda hit: (hit["display_key"] not in explicit_keys, -hit["score"], hit["display_key"]))[:n_results]
+    refs, blocks, metadatas = [], [], []
+    for index, hit in enumerate(ranked, start=1):
+        key, block = _format_retrieved_hit(hit["doc"], hit["meta"], hit["doc_id"], index)
+        refs.append(key)
+        blocks.append(block)
+        metadatas.append(hit["meta"])
+    return refs, "".join(blocks), metadatas
 
 
 # --- Aşama 2.5: EKSİK SUÇ KONTROL ---
@@ -436,11 +531,11 @@ Cevap: YOK
 """
 
 
-def _check_missing_concepts(
+async def _check_missing_concepts(
     question: str,
     current_articles: list[str],
     current_metadatas: list[dict],
-    llm_client: OpenAI,
+    llm_client: AsyncOpenAI,
 ) -> list[str]:
     """Aşama 2.5: Mevcut retrieval'ın eksik bıraktığı suç kavramlarını tespit et.
 
@@ -461,12 +556,13 @@ def _check_missing_concepts(
         f"Eksik suç kavramları (sadece virgülle ayrılmış kelimeler veya YOK):"
     )
 
-    raw = _llm_chat(
+    raw = await _llm_chat(
         llm_client=llm_client,
         system_prompt=MISSING_CHECK_PROMPT,
         user_message=user_msg,
         max_tokens=300,
         temperature=0.3,
+        reasoning_effort="none",
     )
 
     if not raw:
@@ -479,192 +575,182 @@ def _check_missing_concepts(
     return eksikler[:5]  # max 5 ek kavram
 
 
-def _generate_opinion(question: str, articles_text: str, llm_client: OpenAI) -> str:
-    """Aşama 3: Orijinal soru + bulunan maddeler ile hukuki mütalaa üret.
-
-    temperature=0.1: hukuki context'te daha tutarlı/katı cevaplar için (yaratıcılık değil,
-    determinizm tercih edilir).
-    max_tokens=4000: 5-adımlı per-suç metodoloji + içtima + pratik sonuç için yeterli alan
-    (önceki 3000 cevabı 'Huk' gibi kelime ortasında kesiyordu).
-    """
-    kullanici_mesaji = f"{articles_text}SORU:\n{question}"
-    cevap = _llm_chat(
-        llm_client=llm_client,
-        system_prompt=SISTEM_PROMPTU,
-        user_message=kullanici_mesaji,
-        max_tokens=4000,
-        temperature=0.1,
-    )
-    if not cevap:
-        return "(Model boş cevap döndü — context çok uzun olabilir veya thinking budget yetersiz)"
-    return cevap
-
-
 # --- 5. LIFESPAN: modelleri sunucu açılırken bir kez yükle ---
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Embedding modeli yükleniyor... (ilk seferde indirilebilir)")
-    app.state.embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME)
-    print("Embedding modeli hazır.")
-
-    print(f"ChromaDB bağlantısı kuruluyor: {CHROMA_DB_PATH}")
+    print("Embedding modeli CPU üzerinde yükleniyor...")
+    app.state.embedding_model = SentenceTransformer(
+        EMBEDDING_MODEL_NAME, device="cpu", local_files_only=True,
+    )
     chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
     app.state.collection = chroma_client.get_collection(name=COLLECTION_NAME)
-    print(f"'{COLLECTION_NAME}' koleksiyonuna bağlanıldı.")
+    records = app.state.collection.get(where={"mulga": False}, include=["documents", "metadatas"])
+    app.state.lexical_index = BM25Index(records)
+    print(f"Hibrit arama hazır: {len(app.state.lexical_index.hits)} aktif parça.")
 
-    # Phase 2.0 — Hukuk ontolojisi (opsiyonel, halk dili genişletmesi için)
     if ONTOLOGY_PATH and os.path.isfile(ONTOLOGY_PATH):
-        with open(ONTOLOGY_PATH, "r", encoding="utf-8") as f:
-            ontology = json.load(f)
-        app.state.halk_dili_index = _build_halk_dili_index(ontology)
-        print(
-            f"Hukuk ontolojisi yüklendi: {len(ontology)} kavram, "
-            f"{len(app.state.halk_dili_index)} halk dili eşlemesi."
-        )
+        with open(ONTOLOGY_PATH, "r", encoding="utf-8") as file:
+            app.state.halk_dili_index = _build_halk_dili_index(json.load(file))
     else:
         app.state.halk_dili_index = {}
-        print("UYARI: ONTOLOGY_PATH ayarlı değil, halk dili genişletmesi devre dışı.")
+        print("UYARI: Hukuk ontolojisi yüklenmedi.")
 
-    print(f"LM Studio istemcisi hazırlanıyor: {LM_STUDIO_BASE_URL}")
-    app.state.llm_client = OpenAI(base_url=LM_STUDIO_BASE_URL, api_key=LM_STUDIO_API_KEY)
-    print("Tüm bileşenler hazır. API çalışmaya hazır.\n")
+    # 4 GB VRAM için analizleri sırayla işle; ikinci model yükleme.
+    app.state.analysis_lock = asyncio.Semaphore(1)
+    app.state.llm_client = AsyncOpenAI(
+        base_url=LM_STUDIO_BASE_URL, api_key=LM_STUDIO_API_KEY,
+        timeout=600, max_retries=0,
+    )
+    try:
+        yield
+    finally:
+        await app.state.llm_client.close()
 
-    yield
 
-    print("API kapatılıyor...")
-
-
-# --- 6. FASTAPI UYGULAMASI ---
 app = FastAPI(
     title="TCK Hukuk Asistanı API",
-    description="3 aşamalı RAG (Tercüman → Vektör Arama → Mütalaa) ile TCK üzerinde çalışan hukuki analiz API'si.",
-    version="1.0.0",
+    description="Yerel hibrit arama ve akan yanıt ile hukuki analiz.",
+    version="1.1.0",
     lifespan=lifespan,
 )
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_methods=["GET", "POST"], allow_headers=["Content-Type"],
 )
 
 
-# --- 7. ENDPOINT'LER ---
+async def _analysis_events(request: AnalyzeRequest, state):
+    """JSON ve SSE uçları aynı pipeline'ı kullanır; sohbet geçmişi sunucuda saklanmaz."""
+    yield {"type": "progress", "message": "Analiz sırası bekleniyor…"}
+    async with state.analysis_lock:
+        stage = "Kavram çıkarma"
+        try:
+            question = request.analysis_question()
+            yield {"type": "progress", "message": "Olay ve hukuki kavramlar inceleniyor…"}
+            concepts, clarification = await _extract_concepts(
+                question, state.llm_client, state.halk_dili_index,
+                allow_clarification=not request.ek_soru_yanitlandi,
+            )
+            if clarification:
+                response = AnalyzeResponse(
+                    soru=request.soru, cikarilan_kavramlar=concepts,
+                    bulunan_madde_numaralari=[], mutalaa=clarification, ek_soru=clarification,
+                )
+                yield {"type": "result", **response.model_dump()}
+                return
+
+            if (request.ek_soru_yanitlandi and not concepts and not request.ek_bilgi.strip()
+                    and not _explicit_article_refs(request.soru)):
+                # Atlanan tek ek sorudan sonra belirsiz olaya suç/ceza yakıştırma.
+                response = AnalyzeResponse(
+                    soru=request.soru, cikarilan_kavramlar=[], bulunan_madde_numaralari=[],
+                    mutalaa=("Anlatımda somut eylem belirtilmediği için bir suç tipi veya ceza aralığı "
+                             "belirlenemez. Eksik bilgileri varsaymadan değerlendirme yapabilmek için "
+                             "kişinin ne yaptığı veya ne söylediği bilgisi gerekir."),
+                )
+                yield {"type": "result", **response.model_dump()}
+                return
+
+            stage = "Hibrit arama"
+            yield {"type": "progress", "message": "Kanun kaynakları anlam ve kelime eşleşmesiyle aranıyor…"}
+            refs, articles, metadatas = await asyncio.to_thread(
+                _retrieve_articles, question, state.embedding_model, state.collection,
+                N_RESULTS, concepts, state.lexical_index,
+            )
+            stage = "Eksik suç kontrolü"
+            yield {"type": "progress", "message": "Kaynakların kapsamı kontrol ediliyor…"}
+            try:
+                missing = await _check_missing_concepts(question, refs, metadatas, state.llm_client)
+            except Exception as error:
+                # Olayın kendisini veya model yanıtını loglama.
+                print(f"Eksik suç kontrolü atlandı: {type(error).__name__}")
+                missing = []
+            if missing:
+                concepts = list(dict.fromkeys(concepts + missing))[:8]
+                refs, articles, metadatas = await asyncio.to_thread(
+                    _retrieve_articles, question, state.embedding_model, state.collection,
+                    N_RESULTS, concepts, state.lexical_index,
+                )
+
+            metadata = {"cikarilan_kavramlar": concepts, "bulunan_madde_numaralari": refs}
+            yield {"type": "sources", **metadata}
+            stage = "Mütalaa üretimi"
+            yield {"type": "progress", "message": "Yanıt hazırlanıyor…"}
+            parts = []
+            stream = await state.llm_client.chat.completions.create(
+                model=LM_MODEL_NAME,
+                messages=[{"role": "system", "content": SISTEM_PROMPTU},
+                          {"role": "user", "content": f"{articles}SORU:\n{question}"}],
+                temperature=0.1, max_tokens=4000, stream=True,
+            )
+            truncated = False
+            async with stream:
+                async for chunk in stream:
+                    if not chunk.choices:
+                        continue
+                    choice = chunk.choices[0]
+                    truncated = truncated or choice.finish_reason == "length"
+                    content = choice.delta.content
+                    if content:
+                        parts.append(content)
+                        yield {"type": "token", "content": content}
+            if not parts:
+                raise ValueError("Empty model response")
+            if truncated:
+                yield {"type": "error", "message": "Yanıt modelin çıktı sınırına ulaştığı için tamamlanamadı. Görünen metin kısmi yanıttır."}
+                return
+            response = AnalyzeResponse(soru=request.soru, mutalaa="".join(parts).strip(), **metadata)
+            yield {"type": "result", **response.model_dump()}
+        except Exception as error:
+            print(f"{stage} başarısız: {type(error).__name__}")
+            yield {"type": "error", "message": f"{stage} tamamlanamadı. LM Studio bağlantısını, modelin yüklü olduğunu ve bağlam sınırını kontrol edin."}
+
+
+async def _sse_events(request: AnalyzeRequest, state):
+    # Uzun GPU üretimlerinde bağlantı canlı kalsın; istemci ayrılınca model akışını kapat.
+    iterator = _analysis_events(request, state)
+    pending = None
+    try:
+        while True:
+            if pending is None:
+                pending = asyncio.create_task(anext(iterator))
+            done, _ = await asyncio.wait({pending}, timeout=10)
+            if not done:
+                yield ": keep-alive\n\n"
+                continue
+            try:
+                event = pending.result()
+            except StopAsyncIteration:
+                return
+            pending = None
+            yield "data: " + json.dumps(event, ensure_ascii=False) + "\n\n"
+    finally:
+        if pending is not None:
+            pending.cancel()
+            try:
+                await pending
+            except (asyncio.CancelledError, StopAsyncIteration):
+                pass
+        await iterator.aclose()
+
+
 @app.post("/api/v1/analyze", response_model=AnalyzeResponse)
 async def analyze(request: AnalyzeRequest, http_request: Request) -> AnalyzeResponse:
-    """Hukuki olayı 3 aşamalı RAG pipeline'ından geçirip mütalaa üretir."""
-    state = http_request.app.state
+    async with aclosing(_analysis_events(request, http_request.app.state)) as events:
+        async for event in events:
+            if event["type"] == "result":
+                return AnalyzeResponse.model_validate(event)
+            if event["type"] == "error":
+                raise HTTPException(status_code=503, detail=event["message"])
+    raise HTTPException(status_code=503, detail="Analiz tamamlanamadı.")
 
-    try:
-        # Aşama 1: Hukuki Tercüman + halk dili genişletme
-        kavramlar = await asyncio.to_thread(
-            _extract_concepts,
-            request.soru,
-            state.llm_client,
-            state.halk_dili_index,
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=503,
-            detail=f"Aşama 1 (Tercüman) hatası — LM Studio erişilemiyor olabilir: {e}",
-        )
 
-    # Tercüman boş döndüyse fallback: orijinal soru ile retrieval yap
-    arama_metni = ", ".join(kavramlar) if kavramlar else request.soru
-
-    try:
-        # Aşama 2: Multi-Query Retrieval (K3) — her kavram için ayrı sorgu + RRF birleşim
-        madde_nolari, maddeler_metni = await asyncio.to_thread(
-            _retrieve_articles,
-            arama_metni,
-            state.embedding_model,
-            state.collection,
-            N_RESULTS,
-            kavramlar,  # K3: Stage 1'in kavramlarını multi-query için gönder
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=503,
-            detail=f"Aşama 2 (Vektör Arama) hatası — ChromaDB erişilemiyor olabilir: {e}",
-        )
-
-    # Aşama 2.5: Eksik Suç Kontrolü (Alternatif B — İteratif Refinement)
-    # Mini LLM'e mevcut retrieval başlıklarını gösterip "eksik suç var mı?" sor
-    eksik_kavramlar: list[str] = []
-    try:
-        # Mevcut maddelerin metadata'larını çek (kısa LLM bağlamı için)
-        # Not: bu zaten yapılmış bir sorgu, tekrar fetch etmek yerine
-        # mevcut display_key'leri ve başlıkları çıkarmak gerekiyor.
-        # Bu yüzden kısa bir ek query ile başlıkları çekiyoruz.
-        # (alternatif: _retrieve_articles döner değerini değiştirmek; minimal değişiklik için
-        # buradan ek query yapıyoruz — performans etkisi düşük)
-        current_metadatas: list[dict] = []
-        for ref in madde_nolari:
-            # ref formatı "TCK 125" gibi → kaynak_kodu + birim_no
-            parts = ref.split(" ", 1)
-            if len(parts) == 2:
-                kk, bn = parts[0], parts[1]
-                try:
-                    r = state.collection.get(
-                        where={"$and": [{"kaynak_kodu": kk}, {"birim_no": bn}]},
-                        limit=1,
-                    )
-                    if r and r.get("metadatas"):
-                        current_metadatas.append(r["metadatas"][0])
-                    else:
-                        current_metadatas.append({})
-                except Exception:
-                    current_metadatas.append({})
-            else:
-                current_metadatas.append({})
-
-        eksik_kavramlar = await asyncio.to_thread(
-            _check_missing_concepts,
-            request.soru,
-            madde_nolari,
-            current_metadatas,
-            state.llm_client,
-        )
-
-        # Eğer eksik kavramlar tespit edildiyse, onlar için EK retrieval yap, top-N'e ekle
-        if eksik_kavramlar:
-            print(f"[Stage 2.5] Eksik kavram tespit edildi: {eksik_kavramlar}")
-            ek_kavramlar = kavramlar + eksik_kavramlar  # birleşik kavram listesi
-            # Tekrar multi-query ile retrieve, ama bu sefer eksik kavramları da dahil ederek
-            ek_madde_nolari, ek_maddeler_metni = await asyncio.to_thread(
-                _retrieve_articles,
-                ", ".join(ek_kavramlar),
-                state.embedding_model,
-                state.collection,
-                N_RESULTS,
-                ek_kavramlar,
-            )
-            # Yeni sonuçları kullan (eksik kavramlar artık dahil)
-            madde_nolari, maddeler_metni = ek_madde_nolari, ek_maddeler_metni
-            # Kavramlar listesine de ekle (frontend görsün)
-            kavramlar = ek_kavramlar
-    except Exception as e:
-        # Stage 2.5 başarısız olursa pipeline'ı bozmamak için sessizce devam
-        print(f"[Stage 2.5] UYARI: Eksik suç kontrolü başarısız: {e}")
-
-    try:
-        # Aşama 3: Nihai Mütalaa (yapılandırılmış metodoloji ile)
-        mutalaa = await asyncio.to_thread(
-            _generate_opinion, request.soru, maddeler_metni, state.llm_client
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=503,
-            detail=f"Aşama 3 (Mütalaa) hatası — LM Studio erişilemiyor olabilir: {e}",
-        )
-
-    return AnalyzeResponse(
-        soru=request.soru,
-        cikarilan_kavramlar=kavramlar,
-        bulunan_madde_numaralari=madde_nolari,
-        mutalaa=mutalaa,
+@app.post("/api/v1/analyze/stream")
+async def analyze_stream(request: AnalyzeRequest, http_request: Request):
+    return StreamingResponse(
+        _sse_events(request, http_request.app.state), media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"},
     )
 
 
@@ -681,7 +767,7 @@ async def health(http_request: Request) -> HealthResponse:
 
     # LM Studio
     try:
-        await asyncio.to_thread(state.llm_client.models.list)
+        await state.llm_client.models.list()
         lm_ok = True
     except Exception:
         lm_ok = False

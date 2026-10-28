@@ -11,5 +11,8 @@ public class ChatRequestValidator : AbstractValidator<ChatRequest>
             .NotEmpty().WithMessage("Soru bos olamaz")
             .MinimumLength(3).WithMessage("Soru 3-2000 karakter arasinda olmali")
             .MaximumLength(2000).WithMessage("Soru 3-2000 karakter arasinda olmali");
+
+        RuleFor(x => x.EkBilgi).MaximumLength(1200);
+        RuleFor(x => x.EkSoru).MaximumLength(240);
     }
 }

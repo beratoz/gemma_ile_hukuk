@@ -88,7 +88,7 @@ print(f"\nToplam {len(all_items)} ham kayıt yüklendi.\n")
 
 # --- 4. EMBEDDING MODELİNİ YÜKLE ---
 print(f"Embedding modeli yükleniyor: {EMBEDDING_MODEL_NAME}")
-model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+model = SentenceTransformer(EMBEDDING_MODEL_NAME, device="cpu", local_files_only=True)
 print("Model hazır.\n")
 
 # --- 5. CHROMADB'YE BAĞLAN, TEMİZ KOLEKSİYON ---
