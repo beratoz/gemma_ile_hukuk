@@ -1,0 +1,69 @@
+name: gemma-hukuk
+
+x-python: &python
+  image: gemma-hukuk-api:local
+  platform: linux/amd64
+  build:
+    context: .
+    target: api
+  environment: &python-env
+    CHROMA_DB_PATH: /data/chroma
+    COLLECTION_NAME: tck_koleksiyonu_e5
+    EMBEDDING_MODEL_NAME: /data/huggingface/hub/models--intfloat--multilingual-e5-base/snapshots/d128750597153bb5987e10b1c3493a34e5a4502a
+    DATASETS_PATHS: /app/datasets/tck_rag.json,/app/datasets/tck_gerekceleri_rag.json,/app/datasets/cmk_rag.json,/app/datasets/cgtik_rag.json,/app/datasets/genelhukumler_rag.json
+    ONTOLOGY_PATH: /app/ontology.json
+    N_RESULTS: "8"
+    LM_STUDIO_BASE_URL: ${DOCKER_LM_STUDIO_BASE_URL:-http://host.docker.internal:1234/v1}
+    LM_STUDIO_API_KEY: ${DOCKER_LM_STUDIO_API_KEY:-lm-studio}
+    LM_MODEL_NAME: ${DOCKER_LM_MODEL_NAME:-google/gemma-4-e2b}
+    HF_HOME: /data/huggingface
+    HF_HUB_OFFLINE: "1"
+    HF_HUB_DISABLE_TELEMETRY: "1"
+    ANONYMIZED_TELEMETRY: "False"
+  volumes:
+    - chroma:/data/chroma
+    - embeddings:/data/huggingface
+
+services:
+  setup:
+    <<: *python
+    profiles: [setup]
+    environment:
+      <<: *python-env
+      HF_HUB_OFFLINE: "0"
+    command: [python, docker_setup.py]
+
+  api:
+    <<: *python
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/openapi.json', timeout=5)"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 120s
+
+  gateway:
+    build:
+      context: .
+      target: gateway
+    environment:
+      PythonService__BaseUrl: http://api:8000
+      PythonService__TimeoutSeconds: "600"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      target: web
+    ports:
+      - "127.0.0.1:${DOCKER_WEB_PORT:-8088}:80"
+    depends_on:
+      - gateway
+
+volumes:
+  chroma:
+  embeddings:

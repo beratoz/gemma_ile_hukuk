@@ -31,13 +31,17 @@ env/
 # ─── ChromaDB vector database (large binary, rebuilt locally via tck_indeksleme.py) ───
 tck_chromadb/
 
-# ─── Hukuk veri setleri (yalnızca örnek veri seti repoda kalır) ───────────────
+# ─── RAG JSON sources are included; PDFs and unused source files stay local ──
 ceza_kanunu_duzeltilmis/
 ceza_kanunu_duzeltilmis_2/tck_basliklar_resmi.json
 ceza_kanunu_duzeltilmis_2/tck_hiyerarsi.json
 ceza_kanunu_duzeltilmis_2/tck_meta.json
 ceza_kanunu_duzeltilmis_2/tck_rag_chunks.json
-eklenebilir_hukuk/
+eklenebilir_hukuk/*
+!eklenebilir_hukuk/tck_gerekceleri_rag.json
+!eklenebilir_hukuk/cmk_rag.json
+!eklenebilir_hukuk/cgtik_rag.json
+!eklenebilir_hukuk/genelhukumler_rag.json
 hukuk_sozlugu/hukuk-terminoloji-110615.pdf
 
 # ─── Java / Maven (legacy gateway, replaced by dotnet-gateway) ────────────────

@@ -1,71 +1,35 @@
-# Docker'a geçiş planı
+# Docker kurulumu
 
-Tarih: 28 Ekim 2026
+Güncelleme: 30 Ekim 2026
 
-Durum: İleride uygulanmak üzere kaydedildi. Henüz Docker yapılandırması hazırlanmadı.
+Gemma kullanıcı tarafından LM Studio'da indirilip çalıştırılır. Docker imajlarına Gemma veya özel yerel dosyalar eklenmez.
 
-29 Ekim 2026 durumu: `hukuk` Conda ortamı ve CPU kütüphaneleri hazır. E5 yerel Hugging Face önbelleğine kuruldu; Gemma LM Studio'da kalıyor. Gerçek uygulama akışı doğrulandı. Docker'a geçerken E5 önbelleği de bağlanmalı/kalıcı tutulmalı; modelin yeniden indirilmesine gerek bırakılmamalı.
+## Hazırlananlar
 
-## Hedef
+- [x] Tek Dockerfile içinde Python API, .NET gateway ve React/Nginx hedefleri.
+- [x] Compose ile servis adresleri, API hazır olma kontrolü ve localhost'a açık arayüz.
+- [x] Nginx üzerinden aynı adreste API erişimi ve tamponlanmadan SSE aktarımı.
+- [x] İzin verilen dosyaları listeleyen `.dockerignore`; özel veri, `.env`, cache ve derleme çıktıları hariç.
+- [x] Ayrı Docker volume'larında E5 önbelleği ve ChromaDB.
+- [x] Açıkça çağrılan `setup` servisi: yalnızca E5 indirme ve yerelde kullanılan beş JSON kaynağını indeksleme.
+- [x] Normal çalışma sırasında çevrimdışı embedding; tek API worker ve CPU PyTorch.
+- [x] README içinde ilk kurulum, LM Studio bağlantısı, açma/kapatma ve volume silme açıklamaları.
 
-Kullanıcı Gemma modelini LM Studio üzerinden kendi bilgisayarına indirip çalıştıracak. Projenin diğer bileşenleri Docker Compose ile başlatılacak. Gemma modeli Docker imajına eklenmeyecek.
+## Docker kurulu bir bilgisayarda yapılacaklar
 
-Planlanan mimari:
+- [x] Linux üzerinde Python, .NET ve frontend imajlarını derle.
+- [x] `docker compose run --build --rm setup` ile beş kaynaktan 1695 kayıtlık tam indeksi hazırla.
+- [x] `docker compose up --build -d` ile üç servisi başlat.
+- [x] Gerçek LM Studio bağlantısı ve Nginx/.NET/Python üzerinden SSE yanıtını doğrula.
+- [x] `down` / `up` sonrası E5 ve 1695 kaydın korunduğunu doğrula.
+- [x] İmaj boyutlarını `docker image ls`, toplam kullanımı `docker system df -v` ile ölç.
 
-```text
-Tarayıcı → React arayüzü → ASP.NET Core Gateway → Python FastAPI
-                                                   ├─ ChromaDB
-                                                   ├─ multilingual-e5-base
-                                                   └─ Bilgisayardaki LM Studio / Gemma
-```
+Docker Desktop kullanıcı dizininde bulundu ve üç imaj Linux üzerinde derlendi. Windows kilit dosyasında eksik Linux bağımlılıkları tamamlandı. Önceki 4–7 GB disk ve 2–4 GB indirme rakamları ölçülmüş sonuç değildir. Gemma (~4,4 GB) bu kurulumun dışındadır. E5'in gerekli dosyaları yaklaşık 1,13 GB'tır ve imajdan ayrı saklanır. Docker Desktop/WSL, derleme önbelleği ve çalışma ortamları ayrıca yer kaplar.
 
-ASP.NET Core gateway korunmuştur; kullanılmayan eski Java/Spring Boot kodu kaldırılmıştır.
+Yerel doğrulamalar: Compose YAML yapısı ve dışa açık portlar kontrol edildi; hazırlık işlemi indirme/Chroma sınırları taklit edilerek ilk kurulum, önbellekten kullanım, yeniden indekslememe ve yarım indeksi koruma senaryolarında denendi. `/api/chat` adresiyle frontend üretim derlemesi geçti. Bu kontroller konteynerlerde uçtan uca test yerine geçmez; yeni model indirilmedi.
 
-## Yapılacaklar
+Gerçek Docker doğrulaması: 1695 kayıt ve beş kaynak dağılımı yerelle eşleşti; JSON SHA256 değerleri aynı. `/health` sonucu `ok`. Gerçek Gemma yanıtı 180 SSE parçasıyla tamamlandı (tek denemede ilk metin 34,7 s, toplam 41,2 s). Çevrimdışı hazırlık tekrarında indeks korundu. E5 mevcut önbellekten Docker volume'una kopyalandı. Uygulama imajları ve E5/indeks toplamı yaklaşık 4,2 GB; ayrıntılı ölçüm README içinde.
 
-- [ ] Python FastAPI servisi için Dockerfile hazırla.
-- [ ] Arama/embedding modelini CPU'da çalıştıracak bağımlılıkları seç; gereksiz CUDA paketlerini indirme. Gemma'nın GPU kullanımı LM Studio tarafından yönetilecek.
-- [ ] ASP.NET Core gateway için çok aşamalı Dockerfile hazırla; son imajda yalnızca çalışma zamanı ve derlenmiş uygulama bulunsun.
-- [ ] React arayüzünü derleyip statik dosyaları sunacak Dockerfile hazırla.
-- [ ] Üç servisi başlatacak `compose.yaml` dosyasını oluştur.
-- [ ] Gateway–FastAPI adreslerini Compose servis adlarıyla yapılandır; tarayıcının erişeceği API adresini ayrıca düzenle.
-- [ ] FastAPI'nin bilgisayardaki LM Studio API'sine erişimini yapılandır. Windows/Docker Desktop için `host.docker.internal:1234/v1` adresini kullan; LM Studio'nun Docker'dan erişilebilir biçimde dinlediğini doğrula.
-- [ ] Ortama özel Windows dosya yollarını konteyner yollarına çevir; `.env.example` dosyasını güncelle.
-- [ ] Hukuk veri dosyalarını ve ChromaDB dizinini kalıcı bağlamalar/volume'larla yapılandır. Kullanıcıya veritabanı mı dağıtılacağını, yoksa ilk kurulumda indeksleme mi yapılacağını netleştir.
-- [ ] `multilingual-e5-base` model önbelleğini kalıcı volume'da tut; her konteyner oluşturulduğunda yeniden indirilmesini önle.
-- [ ] ChromaDB ile diğer Python paketlerinin sürümlerini sabitle; mevcut veritabanının seçilen sürümle açıldığını doğrula.
-- [ ] `.dockerignore` dosyaları ekle; `.env`, `.git`, yerel derleme çıktıları, `node_modules` ve gereksiz önbellekleri imajlara dahil etme. Gerekli veri dosyalarını seçilen dağıtım yöntemine göre ayrıca ele al.
-- [ ] Servis sağlık kontrollerini ve başlatma sırasını düzenle; LM Studio kapalıysa anlaşılır hata gösterildiğini doğrula.
-- [ ] README'ye Docker Desktop/WSL, LM Studio, model indirme, veri hazırlama, başlatma ve durdurma adımlarını yaz.
-- [ ] İlk kurulum, soru-cevap ve yeniden başlatma akışlarını dene; volume'ların veri ve model önbelleğini koruduğunu doğrula.
-- [ ] Gerçek imaj boyutlarını, ilk kurulumdaki indirme miktarını ve disk kullanımını ölçerek aşağıdaki tahminleri güncelle.
+Konteynerler `down` / `up` ile yeniden oluşturulduktan sonra sağlık `ok`, kayıt sayısı yine 1695. Gerçek SSE akışı ilk metinde iptal edildi; takip eden ek soru isteği 3,2 saniyede tamamlandı, analiz kilidi açık kalmadı. Tarayıcı sohbet kaydı önceki yerel sürümde doğrulanmıştı; Docker geçişinde frontend kayıt kodu değiştirilmedi.
 
-## Disk ve internet tahminleri
-
-28 Ekim 2026 güncellemesi: LM Studio'da fiilen mevcut model **Gemma 4 E2B Q4_K_M**, yerel model dosyası yaklaşık **4,41 GB**. Aşağıdaki önceki boyut tablosu E4B varsayımıyla hazırlanmıştı; Docker uygulanırken seçilen gerçek model esas alınarak güncellenecek. Mevcut modelin yeniden indirilmesi gerekmez.
-
-Aşağıdaki değerler henüz Docker imajı oluşturulmadan yapılmış yaklaşık planlama rakamlarıdır. Windows/Docker Desktop ve CPU üzerinde embedding varsayılmıştır. Paket sürümleri, mevcut kurulumlar, önbellekler ve derleme yöntemi sonucu değiştirebilir.
-
-| Bileşen | İlk indirme / internet | Disk alanı |
-|---|---:|---:|
-| Gemma 4 E4B, Q4_K_M | 5,34 GB | 5,34 GB |
-| Docker uygulaması, Python bağımlılıkları ve embedding modeli | 2–4 GB | 4–7 GB |
-| Docker Desktop, gerekli WSL bileşenleri ve LM Studio | 1–3 GB | 3–6 GB |
-| LM Studio ayrıca görsel model dosyasını indirirse | Yaklaşık 1 GB | Yaklaşık 1 GB |
-
-- Sıfırdan kurulum için yaklaşık **9–14 GB internet** ve **14–20 GB disk alanı** planlandı.
-- Kurulum ve geçici dosyalar için başlangıçta **en az 25 GB boş alan** ayırmak uygun olur. Yerel imaj derlemeleri ve biriken önbellekler daha fazla alan gerektirebilir.
-- Gemma, LM Studio ve Docker zaten kuruluysa kalan uygulama için yaklaşık **2–4 GB indirme** ve **4–7 GB ek disk alanı** bekleniyor.
-- Projede kullanılan `intfloat/multilingual-e5-base` modelinin ağırlıkları yaklaşık **1,11 GB**; bu miktar yukarıdaki Docker uygulaması satırına dahildir.
-- Mevcut `tck_chromadb` klasörü inceleme sırasında yaklaşık **32,4 MiB** idi; kaynaklar arttıkça büyüyecek.
-- Gerekli modeller ve bağımlılıklar indirildikten sonra yerel soru-cevap için internet gerekmez. Güncellemeler, yeni modeller ve yeniden indirmeler ayrıca internet tüketir.
-- Disk rakamları RAM/VRAM ihtiyacını ifade etmez.
-
-Boyut kaynakları (28 Ekim 2026 tarihinde kontrol edildi):
-
-- [LM Studio Gemma 4 E4B GGUF dosyaları](https://huggingface.co/lmstudio-community/gemma-4-E4B-it-GGUF/tree/main): Q4_K_M 5,34 GB; isteğe bağlı görsel dosyası yaklaşık 992 MB.
-- [multilingual-e5-base model ağırlıkları](https://huggingface.co/intfloat/multilingual-e5-base/blob/main/model.safetensors): 1,11 GB.
-
-## Tamamlanma ölçütü
-
-Kullanıcı LM Studio'da Gemma'yı başlatıp gerekli veri ve ayarları hazırladıktan sonra `docker compose up -d` komutuyla uygulamayı açabilmeli. Konteynerler yeniden oluşturulduğunda veri ve model önbelleği korunmalı; yerel soru-cevap akışı çalışmalı.
+Kullanım komutları ve ayrıntılar [README.md](README.md) içindedir. Mevcut özel yerel ChromaDB ve hukuk veri dosyaları bu kurulum tarafından değiştirilmez.

@@ -69,7 +69,7 @@ BM25 başlık alanına ek ağırlık verir ve sonuç sınırını parçalara de�
 | **TCK_DOKTRİN** | 206 | Genel Hükümler Doktrini |
 | **TOPLAM** | **1695** | Tek ChromaDB koleksiyonunda |
 
-> Repoda yalnızca örnek veri seti (`tck_rag.json`) ve ontoloji (`ceza_hukuku_ontolojisi.json`) bulunur. Tam veri setleri `.gitignore` ile hariç tutulmuştur.
+> Docker kurulumu yerel sistemle aynı beş JSON kaynağını ve ontolojiyi kullanır. Toplam 1259 ham kayıt, uzun metinler parçalandığında 1695 RAG belgesine dönüşür. PDF'ler, ham kaynaklar ve mevcut yerel ChromaDB repoya/imaja alınmaz; indeks JSON'lardan ayrı Docker volume'unda oluşturulur.
 
 ---
 
@@ -97,6 +97,47 @@ BM25 başlık alanına ek ağırlık verir ve sonuç sınırını parçalara de�
 ---
 
 ## 🚀 Kurulum ve Çalıştırma
+
+### Docker ile (Gemma kullanıcı bilgisayarında)
+
+Docker Desktop'ı **Linux containers** modunda açın. Bu kurulum Windows/Linux x64 içindir; Python embedding servisi CPU kullanır. Python, Node veya .NET'i bilgisayara ayrıca kurmanız gerekmez.
+
+1. LM Studio'yu kurun, Gemma modelini kendiniz indirin/yükleyin ve **Developer → Local Server** üzerinden sunucuyu 1234 portunda açın. Docker'dan erişim için LM Studio'da **Serve on Local Network** seçeneğini açmanız gerekebilir. Güvenlik duvarında erişimi yerel bilgisayar/Docker ile sınırlayın.
+2. Bu repoyu indirin ve kök klasörde aşağıdaki ilk hazırlık komutunu çalıştırın:
+
+```bash
+docker compose run --build --rm setup
+docker compose up --build -d
+```
+
+Tarayıcıda **http://localhost:8088** adresini açın. Gemma'nın LM Studio API model kimliği farklıysa `.env` dosyasında `DOCKER_LM_MODEL_NAME` değerini düzenleyin (örnekler `.env.example` içinde). Docker varsayılanlarıyla `.env` oluşturmak zorunlu değildir; mevcut yerel `.env` dosyanızı değiştirmeyin. İsteğe bağlı `DOCKER_WEB_PORT` arayüz portunu değiştirir.
+
+İlk `setup` komutu yalnızca **E5 arama modelini (~1,13 GB)** indirir ve beş JSON kaynağının tamamını indeksler. Gemma indirilmez, hiçbir model imaja gömülmez. E5 ve oluşturulan ChromaDB ayrı Docker volume'larında kalır; tekrar hazırlıkta tamamlanmış indeks korunur ve tam E5 önbelleği varsa internet gerekmez. Normal API çalışması model indirmez. Yerel `tck_chromadb` klasörüne dokunulmaz; Docker aynı kaynaklardan kendi **1695 kayıtlık koleksiyonunu** oluşturur. JSON içerikleri değişirse hazırlık eski indeksin üzerine yazmaz; kaynak değişikliğinde yeni bir indeks volume'u hazırlanmalıdır.
+
+Sonraki açılışlarda `docker compose up -d`, kapatmak için `docker compose down` yeterlidir. `down` kayıtlı E5 ve indeks volume'larını korur. **`docker compose down -v` bu iki volume'u siler** ve ilk hazırlığın yeniden yapılmasını gerektirir. Sohbet kaydı tarayıcıda kalır; arayüzden ayrıca silinir.
+
+`docker compose logs --tail 50 api gateway web` hata ayıklama içindir. API model/koleksiyon bulunamadığı için açılmazsa önce `setup` komutunu tamamlayın. LM Studio erişilemiyorsa sunucuyu, model kimliğini ve ağ iznini kontrol edin. Konteyner içinden bilgisayara erişim adresi `host.docker.internal` olarak ayarlanmıştır; Linux'ta bunun için Compose `host-gateway` eşlemesi kullanır.
+
+Üç Docker imajı Linux üzerinde başarıyla derlendi. Kod/veri klasörünün boyutu Python/.NET çalışma ortamlarını, E5 önbelleğini ve Docker derleme önbelleğini kapsamaz. Docker Windows'ta kullanıcı dizininde kuruluysa terminali yeniden açmanız veya Docker'ın `resources/bin` dizinini PATH'e eklemeniz gerekebilir.
+
+30 Ekim 2026 tarihli `docker system df -v` ölçümü:
+
+| Bileşen | Docker'ın bildirdiği disk kullanımı |
+|---|---:|
+| Python / RAG imajı (CPU kütüphaneleri + beş JSON kaynak) | 2,55 GB |
+| .NET gateway imajı | 343 MB |
+| Arayüz / Nginx imajı | 93 MB |
+| E5 model volume'u | 1,13 GB |
+
+Çalışma bileşenleri, indeksle birlikte yaklaşık **4,2 GB** tutar. Gemma ve Docker Desktop/WSL bu toplamın dışındadır. Derleme sırasında ayrıca SDK, Node ve Docker build cache alanı oluşur. Build cache ölçümü 4,45 GB'tır; imajlarla paylaşılan katmanlar içerdiği için bu rakam doğrudan toplamın üzerine eklenmez. Bunlar disk ölçümleridir; internet aktarım miktarı değildir.
+
+Docker davranışı için başvurular: [Compose başlangıç sırası](https://docs.docker.com/compose/how-tos/startup-order/), [Docker build context ve ignore kuralları](https://docs.docker.com/build/concepts/context/).
+
+Docker ile doğrulananlar (30 Ekim 2026): beş JSON kaynağının SHA256 değerleri yerel dosyalarla eşleşti; indeks TCK 364, TCK_GEREKCE 487, CMK 407, CGTIK 231 ve TCK_DOKTRIN 206 parça içerdi. `/health` sonucu `ok`, LM Studio erişimi başarılı. Nginx → .NET → FastAPI → E5/ChromaDB → Gemma zincirinde gerçek yanıt 180 SSE parçasıyla tamamlandı; örnek denemede ilk metin 34,7 saniye, tamamlanma 41,2 saniyeydi. Bu tek örnek genel hız veya hukuki doğruluk puanı değildir. Çevrimdışı `setup` tekrarında indeksleme yapılmadı; Python bağımlılık kontrolü temiz çıktı. İmajda PDF veya `.env` bulunmadığı doğrulandı.
+
+Konteynerler silinip yeniden oluşturulduğunda E5 ve 1695 kayıt korundu. SSE istemcisi ilk metinden sonra bağlantıyı kapattığında üretim iptal edildi; sonraki ek soru isteği 3,2 saniyede tamamlandı.
+
+### Docker olmadan mevcut kurulum
 
 ### 1. Repoyu Klonla
 ```bash
@@ -260,7 +301,12 @@ Arayüz API adresi isteğe bağlı `VITE_API_URL` ile değiştirilebilir (varsay
 │       ├── Chat.jsx                # Ana sohbet bileşeni
 │       └── MessageContent.jsx      # Referans highlight
 │
-├── ceza_kanunu_duzeltilmis_2/      # TCK veri seti (örnek: tck_rag.json)
+├── ceza_kanunu_duzeltilmis_2/      # TCK veri seti (tck_rag.json)
+├── eklenebilir_hukuk/             # Gerekçeler, CMK, CGTİK, genel hükümler: 4 RAG JSON
+├── Dockerfile                     # Python, .NET ve frontend derleme hedefleri
+├── compose.yaml                   # İlk hazırlık ve üç uygulama servisi
+├── docker_setup.py                # E5 önbelleği ve tam veri indeksleme
+├── nginx.conf                     # Arayüz sunumu ve SSE proxy
 └── hukuk_sozlugu/                  # Hukuk ontolojisi (107 kavram, 499 eşleme)
 ```
 
