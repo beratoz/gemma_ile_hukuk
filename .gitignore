@@ -31,7 +31,8 @@ env/
 # ─── ChromaDB vector database (large binary, rebuilt locally via tck_indeksleme.py) ───
 tck_chromadb/
 
-# ─── RAG JSON sources are included; PDFs and unused source files stay local ──
+# ─── Ham kaynaklar yerelde kalır (PDF, ara JSON, txt); repoda yalnızca 5 RAG JSON + ontoloji ──
+*.pdf
 ceza_kanunu_duzeltilmis/
 ceza_kanunu_duzeltilmis_2/tck_basliklar_resmi.json
 ceza_kanunu_duzeltilmis_2/tck_hiyerarsi.json

@@ -197,6 +197,47 @@ Tarayıcıda aç: **http://localhost:5173**
 
 ---
 
+## 🧹 Sadeleştirme — 16 Kasım 2026
+
+Amaç, hukuki çıktıyı (promptlar, arama, model ayarları) değiştirmeden projedeki katman ve dosya sayısını azaltmaktı. Promptlar yeni dosyaya karakteri karakterine aynı taşındı; bu otomatik karşılaştırmayla doğrulandı.
+
+### ➖ Çıkarılanlar
+
+| Ne | Neden |
+|---|---|
+| `dotnet-gateway/` (ASP.NET Core, 14 dosya) | Yalnızca isteği FastAPI'ye iletiyordu. Doğrulama (Pydantic), CORS ve SSE zaten FastAPI'de. Zincir artık **React → FastAPI → LM Studio**. |
+| Docker `gateway` servisi ve .NET derleme aşamaları | Compose servisleri `setup`, `api`, `web`'e indi. Nginx `/api/` isteklerini doğrudan `api:8000`'e iletir. |
+| `POST /api/v1/analyze` (JSON, akışsız uç) | Arayüz yalnızca SSE ucunu kullanıyordu. Bu uç ve ona ait test kaldırıldı. |
+| `DOCKER_YAPILACAKLAR.md` | Tüm maddeleri tamamlanmıştı; içerik bu README'de zaten var. |
+| Yerel kalıntılar: `target/`, `src/` (eski Spring Boot), `__pycache__/`, `frontend/dist/` | Derleme çıktıları ve boş klasörler; gerektiğinde yeniden oluşur. Repoda zaten yoktu. |
+
+### ➕ Eklenenler / Bölünenler
+
+| Ne | İçerik |
+|---|---|
+| `prompts.py` | `TERCUMAN_PROMPTU`, `SISTEM_PROMPTU`, `MISSING_CHECK_PROMPT` (birebir taşındı) |
+| `retrieval.py` | `BM25Index`, `_retrieve_articles` ve yardımcıları: E5 + BM25 hibrit arama, RRF |
+| `main.py` | 781 satırdan 468 satıra indi: yalnızca pipeline, SSE ucu, `/health` |
+| `frontend/src/components/` | `Chat.jsx` 474 satırdan 262 satıra indi; `MessageBubble`, `EmptyState`, `TypingIndicator` ayrı bileşenler |
+| `frontend/src/lib/` | `sse.js` (SSE okuyucu), `history.js` (yerel sohbet kaydı), `legalRefs.js` (kaynak referansı ayrıştırma) |
+| `.gitignore` | Genel `*.pdf` kuralı: ham kaynaklar (PDF, ara JSON, txt) yerelde kalır; repoda yalnızca 5 RAG JSON ve ontoloji bulunur |
+
+### 🔁 Davranış değişiklikleri
+
+- Arayüzün varsayılan API adresi `http://localhost:8080/api/chat` yerine `http://localhost:8000/api/v1/analyze` oldu (Docker'da `/api/v1/analyze`).
+- Yerel çalıştırma için LM Studio dışında 2 terminal yeterli: FastAPI ve React.
+- 8000 portu başka bir uygulama tarafından kullanılıyorsa API'yi `uvicorn main:app --port 8001` ile başlatın ve frontend'i `VITE_API_URL=http://localhost:8001/api/v1/analyze` ile çalıştırın.
+
+### ✅ Doğrulama
+
+- 17 regresyon testi geçti; hem tam bağımlılıklarla (`hukuk` ortamı) hem bağımlılıksız AST modunda çalıştırıldı.
+- Frontend lint ve üretim derlemesi hatasız.
+- API gerçek ChromaDB ile açıldı: `/health` → `ok`, 1695 kayıt, LM Studio erişilebilir. Boş soru 422 dönüyor, `localhost:5173` için CORS izinli.
+- Gerçek Gemma 4 E2B ile iki soru uçtan uca tamamlandı: çok fiilli olay (küfür + tokat) 104 sn, doğrudan madde sorusu (`TCK 116 neyi düzenler?`) 73 sn. Teknik akışı doğrular; hukuki doğruluk ayrıca değerlendirilmelidir. Örneğin ilk yanıtta TCK 86'nın ceza aralığı hatalıydı ve haksız tahrik (TCK 129) ele alınmadı.
+- Docker imajları bu değişiklikten sonra yeniden derlenmedi.
+
+---
+
 ## 📊 Test Sonuçları
 
 ### 29 Ekim 2026 — gerçek E5 / ChromaDB / .NET / arayüz akışı
