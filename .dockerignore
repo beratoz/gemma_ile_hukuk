@@ -3,6 +3,8 @@
 !Dockerfile
 !requirements.txt
 !main.py
+!prompts.py
+!retrieval.py
 !tck_indeksleme.py
 !docker_setup.py
 !nginx.conf
@@ -15,8 +17,6 @@
 !eklenebilir_hukuk/genelhukumler_rag.json
 !hukuk_sozlugu/
 !hukuk_sozlugu/ceza_hukuku_ontolojisi.json
-!dotnet-gateway/
-!dotnet-gateway/**
 !frontend/
 !frontend/package.json
 !frontend/package-lock.json
@@ -30,12 +30,6 @@
 **/secrets*.json
 **/*.key
 **/*.pem
-**/bin/
-**/obj/
 **/node_modules/
 **/dist/
-**/*.user
 **/*.local
-**/.vs/
-**/appsettings.Development.json
-**/Properties/

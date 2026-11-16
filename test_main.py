@@ -9,11 +9,9 @@ import ast
 import asyncio
 import json
 import importlib.util
-import math
 import os
 import re
 import unittest
-from collections import Counter, defaultdict
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
@@ -28,31 +26,28 @@ class Response:
 
 
 def load_core():
+    # prompts.py ve retrieval.py yalnızca standart kütüphane kullanır; her durumda içe aktarılır.
+    import prompts
+    import retrieval
+    shared = {**vars(prompts), **vars(retrieval)}
     modules = ("fastapi", "chromadb", "openai", "sentence_transformers", "dotenv")
     if all(importlib.util.find_spec(name) is not None for name in modules):
         os.environ["HF_HUB_OFFLINE"] = "1"
         os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
         os.environ["ANONYMIZED_TELEMETRY"] = "False"
         import main
-        return vars(main)
+        return {**shared, **vars(main)}
     tree = ast.parse(Path(__file__).with_name("main.py").read_text(encoding="utf-8"))
     names = {
-        "_search_tokens", "_article_key", "_explicit_article_refs", "BM25Index", "_retrieve_articles",
-        "_format_retrieved_hit", "_parse_concepts", "_analysis_events", "_sse_events",
+        "_parse_concepts", "_analysis_events", "_sse_events",
         "_extract_concepts", "_expand_with_halk_dili", "_llm_chat", "_check_missing_concepts",
     }
-    prompts = {"TERCUMAN_PROMPTU", "SISTEM_PROMPTU", "MISSING_CHECK_PROMPT"}
     nodes = [ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0)]
     for node in tree.body:
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and node.name in names:
             nodes.append(node)
-        elif isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id in prompts for target in node.targets):
-            nodes.append(node)
-        elif isinstance(node, ast.AugAssign) and isinstance(node.target, ast.Name) and node.target.id in prompts:
-            nodes.append(node)
     namespace = {
-        "asyncio": asyncio, "json": json, "math": math, "re": re,
-        "Counter": Counter, "defaultdict": defaultdict,
+        **shared, "asyncio": asyncio, "json": json, "re": re,
         "AnalyzeResponse": Response, "N_RESULTS": 3, "LM_MODEL_NAME": "local-test",
     }
     exec(compile(ast.fix_missing_locations(ast.Module(body=nodes, type_ignores=[])), "main.py", "exec"), namespace)
@@ -262,15 +257,6 @@ class PipelineTests(unittest.IsolatedAsyncioTestCase):
 
 @unittest.skipUnless("app" in core, "ASGI testleri için proje kütüphaneleri gerekli")
 class EndpointTests(unittest.IsolatedAsyncioTestCase):
-    async def test_json_endpoint_schema_and_pipeline(self):
-        import httpx
-        state, _ = state_for()
-        with patch.object(core["app"], "state", state):
-            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=core["app"]), base_url="http://test") as client:
-                response = await client.post("/api/v1/analyze", json={"soru": "Örnek olay anlatımı"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["mutalaa"], "Türkçe yanıt")
-
     async def test_sse_endpoint_protocol(self):
         import httpx
         state, _ = state_for()

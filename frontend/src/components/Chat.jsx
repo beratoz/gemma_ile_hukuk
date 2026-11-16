@@ -1,91 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
-import MessageContent from './MessageContent'
+import EmptyState from './EmptyState'
+import MessageBubble from './MessageBubble'
+import TypingIndicator from './TypingIndicator'
+import { HISTORY_KEY, SAVE_KEY, MAX_MESSAGES, loadMessages, loadSavePreference } from '../lib/history'
+import { readEvents } from '../lib/sse'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/chat'
-const REQUEST_TIMEOUT_MS = 660_000 // gateway 600sn (10 dk), 60 sn buffer
-
-// Mutalaa metninden gercekten kullanilan kanun referanslarini cikarir.
-// Multi-corpus destek: TCK, CMK, CGTIK, TCK_GEREKCE, TCK_DOKTRIN.
-// Sirayi metindeki ilk gorunume gore tutar, mukerrerleri eler.
-// Ornek: "TCK Madde 151'e gore... CMK Madde 91 uyarinca..." -> ["TCK 151", "CMK 91"]
-const LEGAL_REF_REGEX = /(TCK|CMK|CGTIK|TCK_GEREKCE|TCK_DOKTRIN)\s+Madde\s+(\d+(?:\/\d+)?)/gi
-function extractUsedArticles(text) {
-  if (!text) return []
-  const matches = [...text.matchAll(LEGAL_REF_REGEX)]
-  const seen = new Set()
-  const ordered = []
-  for (const m of matches) {
-    const ref = `${m[1].toUpperCase()} ${m[2]}` // "TCK 151", "CMK 91"
-    if (!seen.has(ref)) {
-      seen.add(ref)
-      ordered.push(ref)
-    }
-  }
-  return ordered
-}
-
-const HISTORY_KEY = 'tck-hukuk-chat-v1'
-const SAVE_KEY = 'tck-hukuk-save-enabled'
-const MAX_MESSAGES = 100
-
-function loadMessages() {
-  try {
-    if (localStorage.getItem(SAVE_KEY) === 'off') return []
-    const saved = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]')
-    if (!Array.isArray(saved)) return []
-    return saved.filter((message) =>
-      message && typeof message.content === 'string' &&
-      ['user', 'assistant', 'error'].includes(message.role)
-    ).slice(-MAX_MESSAGES).map((message) => ({
-      ...message, id: message.id || crypto.randomUUID(),
-      status: message.status === 'streaming' ? 'incomplete' : message.status,
-    }))
-  } catch {
-    return []
-  }
-}
-
-function loadSavePreference() {
-  try { return localStorage.getItem(SAVE_KEY) !== 'off' }
-  catch { return false }
-}
-
-// SSE olaylari ag parcalari veya Turkce UTF-8 karakterleri arasindan bolunebilir.
-async function readEvents(response, onEvent) {
-  const reader = response.body.getReader()
-  const decoder = new TextDecoder()
-  let buffer = ''
-  function consume(final = false) {
-    buffer = buffer.replace(/\r\n/g, '\n')
-    let boundary
-    while ((boundary = buffer.indexOf('\n\n')) !== -1) {
-      const block = buffer.slice(0, boundary)
-      buffer = buffer.slice(boundary + 2)
-      const data = block.split('\n').filter((line) => line.startsWith('data:'))
-        .map((line) => line.slice(5).trimStart()).join('\n')
-      if (data) onEvent(JSON.parse(data))
-    }
-    if (final && buffer.trim() && !buffer.trim().startsWith(':')) {
-      throw new Error('Yanit akisi tamamlanmadan baglanti kesildi.')
-    }
-  }
-  try {
-    while (true) {
-      const { value, done } = await reader.read()
-      if (done) {
-        buffer += decoder.decode()
-        consume(true)
-        break
-      }
-      buffer += decoder.decode(value, { stream: true })
-      consume()
-    }
-  } finally {
-    // Protokol/JSON hatasinda da sunucudaki istegi acik birakma.
-    try { await reader.cancel() } catch { /* Baglanti zaten kapanmis olabilir. */ }
-    reader.releaseLock()
-  }
-}
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1/analyze'
+const REQUEST_TIMEOUT_MS = 660_000 // LM Studio istemcisi 600 sn, 60 sn buffer
 
 export default function Chat() {
   const [messages, setMessages] = useState(loadMessages)
@@ -227,7 +148,7 @@ export default function Chat() {
       })
       if (!response.ok) {
         const error = await response.json().catch(() => ({}))
-        throw new Error(error.message || `Sunucu hatasi: HTTP ${response.status}`)
+        throw new Error(error.message || (typeof error.detail === 'string' && error.detail) || `Sunucu hatasi: HTTP ${response.status}`)
       }
       if (!response.headers.get('content-type')?.includes('text/event-stream') || !response.body) {
         throw new Error('Sunucudan beklenen yanit akisi alinamadi.')
@@ -336,139 +257,6 @@ export default function Chat() {
           Eğitim amaçlıdır. Hukuki danışmanlık yerine geçmez. Sohbet kaydı modele geçmiş konuşmaları hatırlatmaz.
         </p>
       </footer>
-    </div>
-  )
-}
-
-function EmptyState() {
-  const examples = [
-    'Hirsizlik yapan birinin cezasi nedir?',
-    'Kasten yaralama suclari nelerdir?',
-    'Mesru savunma sinirlari nelerdir?',
-  ]
-  return (
-    <div className="text-center mt-12 px-4">
-      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center text-3xl">
-        ⚖️
-      </div>
-      <h2 className="text-xl font-semibold text-gray-800 mb-2">Merhaba!</h2>
-      <p className="text-sm text-gray-600 mb-6">
-        Hukuki bir soru sor — ilgili TCK maddelerine dayanarak mutalaa hazirlayim.
-      </p>
-      <div className="space-y-2 max-w-md mx-auto">
-        <p className="text-xs text-gray-400 mb-2">Ornek sorular:</p>
-        {examples.map((ex) => (
-          <div
-            key={ex}
-            className="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-3 py-2"
-          >
-            {ex}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function MessageBubble({ message }) {
-  const isUser = message.role === 'user'
-  const isError = message.role === 'error'
-
-  if (isError) {
-    return (
-      <div className="flex justify-center">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm max-w-xl text-center">
-          ⚠️ {message.content}
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-      <div
-        className={`max-w-2xl rounded-2xl px-4 py-3 text-sm ${
-          isUser
-            ? 'bg-blue-600 text-white'
-            : 'bg-white border border-gray-200 text-gray-800 shadow-sm'
-        }`}
-      >
-        {message.status === 'incomplete' && <p className="mb-2 text-xs text-amber-700">Kısmi yanıt — analiz tamamlanmadı.</p>}
-        {message.clarification && <p className="mb-2 text-xs font-medium text-blue-700">Kısa bir netleştirme</p>}
-        <MessageContent text={message.content} isUser={isUser} />
-        {!isUser && (() => {
-          // Mutalaadan gercekten kullanilan referanslari parse et: ["TCK 125", "CMK 91"]
-          const usedArticles = extractUsedArticles(message.content)
-          // Backend'den gelen retrieved kayitlar: ["TCK 125", "CMK 91", ...] (multi-corpus)
-          const retrievedArticles = (message.meta?.bulunan_madde_numaralari || []).map(String)
-          const usedSet = new Set(usedArticles.map((s) => s.toUpperCase()))
-          const otherCandidates = retrievedArticles.filter(
-            (ref) => !usedSet.has(String(ref).toUpperCase())
-          )
-
-          return (
-            <>
-              {usedArticles.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-gray-200 flex flex-wrap items-center gap-1.5">
-                  <span className="text-xs text-gray-500 mr-1">Kullanilan kaynaklar:</span>
-                  {usedArticles.map((ref) => (
-                    <span
-                      key={ref}
-                      className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-medium"
-                    >
-                      {ref}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {otherCandidates.length > 0 && (
-                <details className="mt-2 text-xs text-gray-400">
-                  <summary className="cursor-pointer hover:text-gray-600 select-none">
-                    Diger aday kaynaklar ({otherCandidates.length})
-                  </summary>
-                  <div className="mt-1.5 flex flex-wrap gap-1">
-                    {otherCandidates.map((ref) => (
-                      <span
-                        key={ref}
-                        className="bg-gray-50 text-gray-500 px-1.5 py-0.5 rounded"
-                      >
-                        {ref}
-                      </span>
-                    ))}
-                  </div>
-                </details>
-              )}
-            </>
-          )
-        })()}
-      </div>
-    </div>
-  )
-}
-
-function TypingIndicator({ stage, elapsed }) {
-  return (
-    <div className="flex justify-start">
-      <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3">
-        <div role="status" aria-live="polite">
-          <span className="text-sm text-gray-600">{stage || 'Analiz sürüyor…'}</span>
-          <span aria-hidden="true" className="block text-xs text-gray-400 mt-1">Gecen sure: {Math.floor(elapsed / 60)} dk {elapsed % 60} sn</span>
-        </div>
-        <div className="flex gap-1">
-          <span
-            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-            style={{ animationDelay: '0ms' }}
-          />
-          <span
-            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-            style={{ animationDelay: '150ms' }}
-          />
-          <span
-            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-            style={{ animationDelay: '300ms' }}
-          />
-        </div>
-      </div>
     </div>
   )
 }
