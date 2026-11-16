@@ -5,6 +5,7 @@
 !main.py
 !prompts.py
 !retrieval.py
+!penalties.py
 !tck_indeksleme.py
 !docker_setup.py
 !nginx.conf

@@ -27,9 +27,10 @@ class Response:
 
 def load_core():
     # prompts.py ve retrieval.py yalnızca standart kütüphane kullanır; her durumda içe aktarılır.
+    import penalties
     import prompts
     import retrieval
-    shared = {**vars(prompts), **vars(retrieval)}
+    shared = {**vars(penalties), **vars(prompts), **vars(retrieval)}
     modules = ("fastapi", "chromadb", "openai", "sentence_transformers", "dotenv")
     if all(importlib.util.find_spec(name) is not None for name in modules):
         os.environ["HF_HUB_OFFLINE"] = "1"
@@ -253,6 +254,58 @@ class PipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(events[-1]["type"], "error")
         self.assertNotIn("PRIVATE", json.dumps(events))
         self.assertFalse(state.analysis_lock.locked())
+
+
+class MatchingTests(unittest.TestCase):
+    def test_title_hits_match_whole_concept_in_law_titles(self):
+        index = core["BM25Index"](records())
+        self.assertEqual([hit["display_key"] for hit in index.title_hits("hakaret")], ["TCK 125"])
+        self.assertEqual(index.title_hits("ceza"), [])
+
+    def test_halk_dili_prefix_entries_match_inflections_only_at_word_start(self):
+        expand = core["_expand_with_halk_dili"]
+        index = {"çaldı*": "hırsızlık", "küfür": "hakaret"}
+        self.assertEqual(expand("Cüzdanımı çaldılar ve küfür etti", index), ["hırsızlık", "hakaret"])
+        self.assertEqual(expand("Bugün çalıştım, küfürbaz değilim", index), [])
+
+
+class PenaltyTests(unittest.TestCase):
+    RECORDS = {
+        "documents": [
+            "Türk Ceza Kanunu Madde 86\nBaşlık: Kasten Yaralama\nKonu: Vücut\n\n"
+            "(1) Kasten başkasının vücuduna acı veren kişi, bir yıl altı aydan üç yıla kadar hapis cezası ile cezalandırılır.\n"
+            "(2) (Ek fıkra: 31/3/2005 – 5328/4 md.) Etkinin hafif olması hâlinde, mağdurun şikâyeti üzerine, "
+            "altı aydan bir yıl altı aya kadar hapis veya adlî para cezasına hükmolunur.",
+            "CMK metni beş yıldan on yıla kadar",
+        ],
+        "metadatas": [
+            {"kaynak_kodu": "TCK", "birim_no": "86", "mulga": False},
+            {"kaynak_kodu": "CMK", "birim_no": "1", "mulga": False},
+        ],
+    }
+
+    def test_index_extracts_fikra_penalties_and_complaint(self):
+        index = core["build_penalty_index"](self.RECORDS)
+        self.assertEqual(list(index), ["TCK 86"])
+        self.assertTrue(index["TCK 86"][0].startswith("86/1: "))
+        self.assertIn("şikâyeti üzerine", index["TCK 86"][1])
+        self.assertNotIn("Ek fıkra", index["TCK 86"][1])
+
+    def test_table_only_for_retrieved_articles(self):
+        index = core["build_penalty_index"](self.RECORDS)
+        self.assertEqual(core["penalty_table"](["CMK 1"], index), "")
+        self.assertIn("TCK 86/2", core["penalty_table"](["TCK 86"], index))
+
+    def test_range_parsing_matches_words_and_digits(self):
+        ranges = core["find_ranges"]("bir yıl altı aydan üç yıla kadar; 18 aydan 3 yıla kadar")
+        self.assertEqual(ranges[0][1], ranges[1][1])
+
+    def test_unsupported_range_is_flagged(self):
+        source = self.RECORDS["documents"][0]
+        missing = core["unsupported_ranges"]("altı aydan bir yıl altı aya kadar ve 6 aydan 2 yıla kadar", source)
+        self.assertEqual(missing, ["6 aydan 2 yıla kadar"])
+        self.assertIn("Otomatik kontrol", core["range_warning"](missing))
+        self.assertEqual(core["range_warning"]([]), "")
 
 
 @unittest.skipUnless("app" in core, "ASGI testleri için proje kütüphaneleri gerekli")

@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN useradd --uid 10001 --create-home app \
     && mkdir -p /data/chroma /data/huggingface \
     && chown -R app:app /data
-COPY main.py prompts.py retrieval.py tck_indeksleme.py docker_setup.py ./
+COPY main.py prompts.py retrieval.py penalties.py tck_indeksleme.py docker_setup.py ./
 COPY ceza_kanunu_duzeltilmis_2/tck_rag.json ./datasets/tck_rag.json
 COPY eklenebilir_hukuk/tck_gerekceleri_rag.json eklenebilir_hukuk/cmk_rag.json eklenebilir_hukuk/cgtik_rag.json eklenebilir_hukuk/genelhukumler_rag.json ./datasets/
 COPY hukuk_sozlugu/ceza_hukuku_ontolojisi.json ./ontology.json

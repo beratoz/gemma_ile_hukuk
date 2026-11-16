@@ -1801,5 +1801,161 @@
       "cezanın belirlenmesi",
       "fail"
     ]
+  },
+  "hirsizlik": {
+    "resmi_terim": "hırsızlık",
+    "ingilizce_karsilik": "theft",
+    "halk_dili_karsiliklari": [
+      "çaldı*",
+      "çalındı*",
+      "çalmış*",
+      "çalıp",
+      "çalmak",
+      "aşırdı*",
+      "yürüttü*",
+      "cebimden aldı*"
+    ],
+    "iliskili_1216_kavramlari": []
+  },
+  "kasten_yaralama": {
+    "resmi_terim": "kasten yaralama",
+    "ingilizce_karsilik": "intentional injury",
+    "halk_dili_karsiliklari": [
+      "tokat*",
+      "yumruk*",
+      "dövdü*",
+      "dövüp",
+      "dövmüş*",
+      "darp et*",
+      "tekme*",
+      "kafa attı*",
+      "yaraladı*",
+      "bıçakla*",
+      "itti*",
+      "ittirdi*"
+    ],
+    "iliskili_1216_kavramlari": []
+  },
+  "tehdit": {
+    "resmi_terim": "tehdit",
+    "ingilizce_karsilik": "threat",
+    "halk_dili_karsiliklari": [
+      "öldürürüm",
+      "öldüreceğim",
+      "öldürecek*",
+      "seni bitiririm",
+      "bitireceğim",
+      "canını yakarım",
+      "canını yakacağım",
+      "gebertirim"
+    ],
+    "iliskili_1216_kavramlari": []
+  },
+  "konut_dokunulmazligi": {
+    "resmi_terim": "konut dokunulmazlığının ihlali",
+    "ingilizce_karsilik": "violation of domicile",
+    "halk_dili_karsiliklari": [
+      "evime zorla gir*",
+      "eve zorla gir*",
+      "evime girdi*",
+      "evime daldı*",
+      "kapıyı kırıp gir*",
+      "izinsiz gir*",
+      "zorla gird*",
+      "zorla girip",
+      "işyerime zorla gir*",
+      "ofisime zorla gir*",
+      "ofisime daldı*",
+      "dükkanıma zorla gir*",
+      "işyeri dokunulmazlığı*"
+    ],
+    "iliskili_1216_kavramlari": []
+  },
+  "mala_zarar_verme": {
+    "resmi_terim": "mala zarar verme",
+    "ingilizce_karsilik": "damage to property",
+    "halk_dili_karsiliklari": [
+      "kırdı*",
+      "kırıp",
+      "parçaladı*",
+      "yaktı*",
+      "çizdi*",
+      "zarar verdi*"
+    ],
+    "iliskili_1216_kavramlari": []
+  },
+  "yagma": {
+    "resmi_terim": "yağma",
+    "ingilizce_karsilik": "robbery",
+    "halk_dili_karsiliklari": [
+      "kapkaç*",
+      "gasp*",
+      "zorla aldı*",
+      "zorla elimden*",
+      "elimden çekip*",
+      "çekip kaçtı*"
+    ],
+    "iliskili_1216_kavramlari": []
+  },
+  "santaj": {
+    "resmi_terim": "şantaj",
+    "ingilizce_karsilik": "blackmail",
+    "halk_dili_karsiliklari": [
+      "yayarım",
+      "yayacağını*",
+      "yayacak*",
+      "ifşa ederim",
+      "ifşa edeceğ*",
+      "rezil ederim",
+      "para vermezsem*",
+      "para vermezsen*"
+    ],
+    "iliskili_1216_kavramlari": []
+  },
+  "dolandiricilik": {
+    "resmi_terim": "dolandırıcılık",
+    "ingilizce_karsilik": "fraud",
+    "halk_dili_karsiliklari": [
+      "dolandır*",
+      "kandırıp para*",
+      "ürünü göndermedi*",
+      "sahte ilan*"
+    ],
+    "iliskili_1216_kavramlari": []
+  },
+  "konusmalarin_kayda_alinmasi": {
+    "resmi_terim": "kişiler arasındaki konuşmaların dinlenmesi ve kayda alınması",
+    "ingilizce_karsilik": "recording of conversations",
+    "halk_dili_karsiliklari": [
+      "gizlice kaydet*",
+      "gizlice kayd*",
+      "ses kaydı*",
+      "konuşmamı kaydet*",
+      "konuşmayı kaydet*",
+      "telefonumu dinle*"
+    ],
+    "iliskili_1216_kavramlari": []
+  },
+  "ozel_hayatin_gizliligi": {
+    "resmi_terim": "özel hayatın gizliliğini ihlal",
+    "ingilizce_karsilik": "violation of privacy",
+    "halk_dili_karsiliklari": [
+      "özel fotoğraf*",
+      "fotoğraflarımı paylaş*",
+      "videomu paylaş*",
+      "izinsiz paylaş*"
+    ],
+    "iliskili_1216_kavramlari": []
+  },
+  "mesru_savunma": {
+    "resmi_terim": "meşru savunma",
+    "ingilizce_karsilik": "self-defense",
+    "halk_dili_karsiliklari": [
+      "kendimi korumak*",
+      "kendimi savun*",
+      "kendimi korudu*",
+      "nefsi müdafaa"
+    ],
+    "iliskili_1216_kavramlari": []
   }
 }
