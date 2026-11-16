@@ -26,19 +26,18 @@ Halk ağzıyla yazılmış olayları analiz eder, **5 farklı hukuki kaynaktan**
 ## 🏗️ Sistem Mimarisi
 
 ```
-React Frontend (5173) → ASP.NET Core Gateway (8080) → FastAPI RAG Engine (8000) → LM Studio / Gemma 4B (1234)
-                                                              ↕
-                                                        ChromaDB (1695 doc)
+React Frontend (5173) → FastAPI RAG Engine (8000) → LM Studio / Gemma 4B (1234)
+                                ↕
+                          ChromaDB (1695 doc)
 ```
 
 | Katman | Teknoloji | Görev |
 |---|---|---|
 | **Frontend** | React 19, Vite, Tailwind CSS | ChatGPT-tarzı sohbet arayüzü |
-| **API Gateway** | ASP.NET Core (.NET), C# | CORS, validation, hata yönetimi, proxy |
 | **RAG Engine** | Python, FastAPI, ChromaDB | 4-aşamalı hukuki analiz pipeline |
 | **LLM** | LM Studio, Gemma 4 E2B | Yerel dil modeli (OpenAI-uyumlu API) |
 
-> Gateway ASP.NET Core ile çalışır. Kullanılmayan Java gateway, eski CLI ve tek seferlik modelle başlık üretme aracı kaldırılmıştır. Veri setleri, ontoloji ve indeksleme aracı korunmuştur.
+> Ayrı bir API gateway yoktur: doğrulama (Pydantic), CORS ve SSE doğrudan FastAPI'dedir. Docker'da Nginx arayüzü sunar ve `/api/` isteklerini FastAPI'ye iletir. Önceki Java ve .NET gateway'leri yalnızca proxy görevi gördüğü için kaldırılmıştır.
 
 ---
 
@@ -54,7 +53,7 @@ BM25 başlık alanına ek ağırlık verir ve sonuç sınırını parçalara de�
 
 **Aşama 2.5 — Eksik Suç Kontrolü:** Mini LLM çağrısı ile gözden kaçan suç tiplerini tespit eder, gerekirse ek retrieval yapar.
 
-**Aşama 3 — Mütalaa:** 5-adımlı per-suç metodoloji: Fiil → Hukuki Nitelendirme → Maddi Unsur → Hukuka Aykırılık Kontrolü → Ceza ve Sonuç. İçtima değerlendirmesi ve pratik sonuç ekler. Yanıt SSE ile FastAPI → .NET → tarayıcı boyunca parça parça aktarılır. Durdurma veya sohbet silme, istemci bağlantısını ve model akışını kapatır; yarıda kalan yanıt etiketlenir.
+**Aşama 3 — Mütalaa:** 5-adımlı per-suç metodoloji: Fiil → Hukuki Nitelendirme → Maddi Unsur → Hukuka Aykırılık Kontrolü → Ceza ve Sonuç. İçtima değerlendirmesi ve pratik sonuç ekler. Yanıt SSE ile FastAPI → tarayıcı boyunca parça parça aktarılır. Durdurma veya sohbet silme, istemci bağlantısını ve model akışını kapatır; yarıda kalan yanıt etiketlenir.
 
 ---
 
@@ -78,7 +77,6 @@ BM25 başlık alanına ek ağırlık verir ve sonuç sınırını parçalara de�
 | Katman | Teknolojiler |
 |---|---|
 | **RAG Engine** | Python 3.11, FastAPI, ChromaDB, sentence-transformers (multilingual-e5-base), OpenAI SDK |
-| **API Gateway** | C# / ASP.NET Core (.NET), HttpClient, FluentValidation |
 | **Frontend** | React 19, Vite, Tailwind CSS, Fetch / SSE |
 | **LLM** | LM Studio, Gemma 4 E2B (Q4_K_M, yerel dosya yaklaşık 4,41 GB) |
 
@@ -89,7 +87,6 @@ BM25 başlık alanına ek ağırlık verir ve sonuç sınırını parçalara de�
 | Bileşen | Sürüm |
 |---|---|
 | **Python** | 3.11+ |
-| **.NET SDK** | 10.0+ (`net10.0`) |
 | **Node.js** | 20+ |
 | **LM Studio** | En güncel |
 | **GPU (önerilen)** | NVIDIA 4 GB+ VRAM |
@@ -100,7 +97,7 @@ BM25 başlık alanına ek ağırlık verir ve sonuç sınırını parçalara de�
 
 ### Docker ile (Gemma kullanıcı bilgisayarında)
 
-Docker Desktop'ı **Linux containers** modunda açın. Bu kurulum Windows/Linux x64 içindir; Python embedding servisi CPU kullanır. Python, Node veya .NET'i bilgisayara ayrıca kurmanız gerekmez.
+Docker Desktop'ı **Linux containers** modunda açın. Bu kurulum Windows/Linux x64 içindir; Python embedding servisi CPU kullanır. Python veya Node'u bilgisayara ayrıca kurmanız gerekmez.
 
 1. LM Studio'yu kurun, Gemma modelini kendiniz indirin/yükleyin ve **Developer → Local Server** üzerinden sunucuyu 1234 portunda açın. Docker'dan erişim için LM Studio'da **Serve on Local Network** seçeneğini açmanız gerekebilir. Güvenlik duvarında erişimi yerel bilgisayar/Docker ile sınırlayın.
 2. Bu repoyu indirin ve kök klasörde aşağıdaki ilk hazırlık komutunu çalıştırın:
@@ -116,20 +113,19 @@ Tarayıcıda **http://localhost:8088** adresini açın. Gemma'nın LM Studio API
 
 Sonraki açılışlarda `docker compose up -d`, kapatmak için `docker compose down` yeterlidir. `down` kayıtlı E5 ve indeks volume'larını korur. **`docker compose down -v` bu iki volume'u siler** ve ilk hazırlığın yeniden yapılmasını gerektirir. Sohbet kaydı tarayıcıda kalır; arayüzden ayrıca silinir.
 
-`docker compose logs --tail 50 api gateway web` hata ayıklama içindir. API model/koleksiyon bulunamadığı için açılmazsa önce `setup` komutunu tamamlayın. LM Studio erişilemiyorsa sunucuyu, model kimliğini ve ağ iznini kontrol edin. Konteyner içinden bilgisayara erişim adresi `host.docker.internal` olarak ayarlanmıştır; Linux'ta bunun için Compose `host-gateway` eşlemesi kullanır.
+`docker compose logs --tail 50 api web` hata ayıklama içindir. API model/koleksiyon bulunamadığı için açılmazsa önce `setup` komutunu tamamlayın. LM Studio erişilemiyorsa sunucuyu, model kimliğini ve ağ iznini kontrol edin. Konteyner içinden bilgisayara erişim adresi `host.docker.internal` olarak ayarlanmıştır; Linux'ta bunun için Compose `host-gateway` eşlemesi kullanır.
 
-Üç Docker imajı Linux üzerinde başarıyla derlendi. Kod/veri klasörünün boyutu Python/.NET çalışma ortamlarını, E5 önbelleğini ve Docker derleme önbelleğini kapsamaz. Docker Windows'ta kullanıcı dizininde kuruluysa terminali yeniden açmanız veya Docker'ın `resources/bin` dizinini PATH'e eklemeniz gerekebilir.
+Docker imajları Linux üzerinde başarıyla derlendi. Kod/veri klasörünün boyutu Python çalışma ortamını, E5 önbelleğini ve Docker derleme önbelleğini kapsamaz. Docker Windows'ta kullanıcı dizininde kuruluysa terminali yeniden açmanız veya Docker'ın `resources/bin` dizinini PATH'e eklemeniz gerekebilir.
 
-30 Ekim 2026 tarihli `docker system df -v` ölçümü:
+30 Ekim 2026 tarihli `docker system df -v` ölçümü (o tarihte ayrıca 343 MB'lık .NET gateway imajı vardı; artık kullanılmıyor):
 
 | Bileşen | Docker'ın bildirdiği disk kullanımı |
 |---|---:|
 | Python / RAG imajı (CPU kütüphaneleri + beş JSON kaynak) | 2,55 GB |
-| .NET gateway imajı | 343 MB |
 | Arayüz / Nginx imajı | 93 MB |
 | E5 model volume'u | 1,13 GB |
 
-Çalışma bileşenleri, indeksle birlikte yaklaşık **4,2 GB** tutar. Gemma ve Docker Desktop/WSL bu toplamın dışındadır. Derleme sırasında ayrıca SDK, Node ve Docker build cache alanı oluşur. Build cache ölçümü 4,45 GB'tır; imajlarla paylaşılan katmanlar içerdiği için bu rakam doğrudan toplamın üzerine eklenmez. Bunlar disk ölçümleridir; internet aktarım miktarı değildir.
+Çalışma bileşenleri, indeksle birlikte yaklaşık **3,9 GB** tutar. Gemma ve Docker Desktop/WSL bu toplamın dışındadır. Derleme sırasında ayrıca SDK, Node ve Docker build cache alanı oluşur. Build cache ölçümü 4,45 GB'tır; imajlarla paylaşılan katmanlar içerdiği için bu rakam doğrudan toplamın üzerine eklenmez. Bunlar disk ölçümleridir; internet aktarım miktarı değildir.
 
 Docker davranışı için başvurular: [Compose başlangıç sırası](https://docs.docker.com/compose/how-tos/startup-order/), [Docker build context ve ignore kuralları](https://docs.docker.com/build/concepts/context/).
 
@@ -187,7 +183,7 @@ lms server start --port 1234
 
 Bu komutlar yeni model indirmez. GPU offload otomatik seçimde bırakılmıştır; toplam fiziksel belleğin yeterliliği ve hız farklı cihazlarda ayrıca kontrol edilmelidir.
 
-### 7. Servisleri Başlat (4 terminal)
+### 7. Servisleri Başlat (3 terminal)
 
 FastAPI terminalinde önce `conda activate hukuk` çalıştırın.
 
@@ -195,10 +191,50 @@ FastAPI terminalinde önce `conda activate hukuk` çalıştırın.
 |---|---|---|
 | LM Studio | GUI'den başlat | 1234 |
 | FastAPI | `uvicorn main:app --port 8000` | 8000 |
-| .NET Gateway | `cd dotnet-gateway && dotnet run` | 8080 |
 | React | `cd frontend && npm run dev` | 5173 |
 
 Tarayıcıda aç: **http://localhost:5173**
+
+---
+
+## 🧹 Sadeleştirme — 16 Kasım 2026
+
+Amaç, hukuki çıktıyı (promptlar, arama, model ayarları) değiştirmeden projedeki katman ve dosya sayısını azaltmaktı. Promptlar yeni dosyaya karakteri karakterine aynı taşındı; bu otomatik karşılaştırmayla doğrulandı.
+
+### ➖ Çıkarılanlar
+
+| Ne | Neden |
+|---|---|
+| `dotnet-gateway/` (ASP.NET Core, 14 dosya) | Yalnızca isteği FastAPI'ye iletiyordu. Doğrulama (Pydantic), CORS ve SSE zaten FastAPI'de. Zincir artık **React → FastAPI → LM Studio**. |
+| Docker `gateway` servisi ve .NET derleme aşamaları | Compose servisleri `setup`, `api`, `web`'e indi. Nginx `/api/` isteklerini doğrudan `api:8000`'e iletir. |
+| `POST /api/v1/analyze` (JSON, akışsız uç) | Arayüz yalnızca SSE ucunu kullanıyordu. Bu uç ve ona ait test kaldırıldı. |
+| `DOCKER_YAPILACAKLAR.md` | Tüm maddeleri tamamlanmıştı; içerik bu README'de zaten var. |
+| Yerel kalıntılar: `target/`, `src/` (eski Spring Boot), `__pycache__/`, `frontend/dist/` | Derleme çıktıları ve boş klasörler; gerektiğinde yeniden oluşur. Repoda zaten yoktu. |
+
+### ➕ Eklenenler / Bölünenler
+
+| Ne | İçerik |
+|---|---|
+| `prompts.py` | `TERCUMAN_PROMPTU`, `SISTEM_PROMPTU`, `MISSING_CHECK_PROMPT` (birebir taşındı) |
+| `retrieval.py` | `BM25Index`, `_retrieve_articles` ve yardımcıları: E5 + BM25 hibrit arama, RRF |
+| `main.py` | 781 satırdan 468 satıra indi: yalnızca pipeline, SSE ucu, `/health` |
+| `frontend/src/components/` | `Chat.jsx` 474 satırdan 262 satıra indi; `MessageBubble`, `EmptyState`, `TypingIndicator` ayrı bileşenler |
+| `frontend/src/lib/` | `sse.js` (SSE okuyucu), `history.js` (yerel sohbet kaydı), `legalRefs.js` (kaynak referansı ayrıştırma) |
+| `.gitignore` | Genel `*.pdf` kuralı: ham kaynaklar (PDF, ara JSON, txt) yerelde kalır; repoda yalnızca 5 RAG JSON ve ontoloji bulunur |
+
+### 🔁 Davranış değişiklikleri
+
+- Arayüzün varsayılan API adresi `http://localhost:8080/api/chat` yerine `http://localhost:8000/api/v1/analyze` oldu (Docker'da `/api/v1/analyze`).
+- Yerel çalıştırma için LM Studio dışında 2 terminal yeterli: FastAPI ve React.
+- 8000 portu başka bir uygulama tarafından kullanılıyorsa API'yi `uvicorn main:app --port 8001` ile başlatın ve frontend'i `VITE_API_URL=http://localhost:8001/api/v1/analyze` ile çalıştırın.
+
+### ✅ Doğrulama
+
+- 17 regresyon testi geçti; hem tam bağımlılıklarla (`hukuk` ortamı) hem bağımlılıksız AST modunda çalıştırıldı.
+- Frontend lint ve üretim derlemesi hatasız.
+- API gerçek ChromaDB ile açıldı: `/health` → `ok`, 1695 kayıt, LM Studio erişilebilir. Boş soru 422 dönüyor, `localhost:5173` için CORS izinli.
+- Gerçek Gemma 4 E2B ile iki soru uçtan uca tamamlandı: çok fiilli olay (küfür + tokat) 104 sn, doğrudan madde sorusu (`TCK 116 neyi düzenler?`) 73 sn. Teknik akışı doğrular; hukuki doğruluk ayrıca değerlendirilmelidir. Örneğin ilk yanıtta TCK 86'nın ceza aralığı hatalıydı ve haksız tahrik (TCK 129) ele alınmadı.
+- Docker imajları bu değişiklikten sonra yeniden derlenmedi.
 
 ---
 
@@ -270,43 +306,36 @@ Doğruluk oranı **%60-80** aralığında. Çoklu suç tespiti, içtima değerle
 
 ### Sohbet kaydı ve silme
 
-Son 100 mesaj aynı tarayıcı profilinin `localStorage` alanında saklanır; backend sohbet veritabanı oluşturmaz. **Sohbeti sil** hem ekrandaki hem kalıcı kaydı kaldırır ve devam eden isteği iptal eder. **Sohbeti bu tarayıcıda kaydet** kapatılırsa önceki kalıcı kayıt silinir; mevcut mesajlar sayfa kapanana kadar ekranda kalır. Kayıt şifreli değildir; tarayıcı profilini kullanan kişi erişebilir. Gateway soru metnini ve cevap gövdesini loglamaz.
+Son 100 mesaj aynı tarayıcı profilinin `localStorage` alanında saklanır; backend sohbet veritabanı oluşturmaz. **Sohbeti sil** hem ekrandaki hem kalıcı kaydı kaldırır ve devam eden isteği iptal eder. **Sohbeti bu tarayıcıda kaydet** kapatılırsa önceki kalıcı kayıt silinir; mevcut mesajlar sayfa kapanana kadar ekranda kalır. Kayıt şifreli değildir; tarayıcı profilini kullanan kişi erişebilir. API soru metnini ve cevap gövdesini loglamaz.
 
 Ek soru önerildiğinde kısa bilgi yazılabilir veya **Mevcut bilgilerle yanıtla** seçilebilir. Normal sorular birbirinden bağımsızdır; yalnızca bu tek netleştirme yanıtı asıl olayla birlikte modele gönderilir.
 
-Arayüz API adresi isteğe bağlı `VITE_API_URL` ile değiştirilebilir (varsayılan `http://localhost:8080/api/chat`). JSON uçları korunmuştur: `POST /api/chat` ve `POST /api/v1/analyze`. SSE uçları bunların `/stream` uzantılarıdır. İstek alanları: `soru`, isteğe bağlı `ek_bilgi` (en çok 1200 karakter), `ek_soru` ve `ek_soru_yanitlandi`.
+Arayüz API adresi isteğe bağlı `VITE_API_URL` ile değiştirilebilir (varsayılan `http://localhost:8000/api/v1/analyze`). Tek analiz ucu SSE akışıdır: `POST /api/v1/analyze/stream`. Sağlık kontrolü: `GET /health`. İstek alanları: `soru`, isteğe bağlı `ek_bilgi` (en çok 1200 karakter), `ek_soru` ve `ek_soru_yanitlandi`.
 
 ---
 
 ## 📁 Proje Yapısı
 
 ```
-├── main.py                         # FastAPI RAG Engine (4-aşamalı pipeline)
+├── main.py                         # FastAPI RAG Engine (pipeline + SSE ucu)
+├── prompts.py                      # LLM promptları (tercüman, mütalaa, eksik suç)
+├── retrieval.py                    # Hibrit arama: E5 + BM25, RRF
 ├── tck_indeksleme.py               # ChromaDB indeksleme scripti
 ├── test_main.py                    # Model/GPU gerektirmeyen çekirdek regresyon testleri
 ├── requirements.txt                # Python bağımlılıkları
 ├── .env.example                    # Konfigürasyon şablonu
 │
-├── dotnet-gateway/                 # ASP.NET Core API Gateway
-│   ├── Program.cs                  # Uygulama başlangıcı ve servis kayıtları
-│   ├── Controllers/                # ChatController (POST /api/chat)
-│   ├── Services/                   # AnalyzeService (FastAPI proxy)
-│   ├── Dto/                        # Request/Response modelleri
-│   ├── Exceptions/                 # PythonServiceException
-│   ├── Middleware/                  # GlobalExceptionHandler
-│   └── Validators/                 # FluentValidation kuralları
-│
 ├── frontend/                       # React + Vite + Tailwind UI
-│   └── src/components/
-│       ├── Chat.jsx                # Ana sohbet bileşeni
-│       └── MessageContent.jsx      # Referans highlight
+│   └── src/
+│       ├── components/             # Chat, MessageBubble, MessageContent, EmptyState, TypingIndicator
+│       └── lib/                    # SSE okuyucu, yerel sohbet kaydı, kaynak referansı ayrıştırma
 │
 ├── ceza_kanunu_duzeltilmis_2/      # TCK veri seti (tck_rag.json)
 ├── eklenebilir_hukuk/             # Gerekçeler, CMK, CGTİK, genel hükümler: 4 RAG JSON
-├── Dockerfile                     # Python, .NET ve frontend derleme hedefleri
-├── compose.yaml                   # İlk hazırlık ve üç uygulama servisi
+├── Dockerfile                     # Python API ve frontend/Nginx derleme hedefleri
+├── compose.yaml                   # İlk hazırlık, API ve web servisleri
 ├── docker_setup.py                # E5 önbelleği ve tam veri indeksleme
-├── nginx.conf                     # Arayüz sunumu ve SSE proxy
+├── nginx.conf                     # Arayüz sunumu ve FastAPI'ye SSE proxy
 └── hukuk_sozlugu/                  # Hukuk ontolojisi (107 kavram, 499 eşleme)
 ```
 

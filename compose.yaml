@@ -44,17 +44,6 @@ services:
       retries: 3
       start_period: 120s
 
-  gateway:
-    build:
-      context: .
-      target: gateway
-    environment:
-      PythonService__BaseUrl: http://api:8000
-      PythonService__TimeoutSeconds: "600"
-    depends_on:
-      api:
-        condition: service_healthy
-
   web:
     build:
       context: .
@@ -62,7 +51,8 @@ services:
     ports:
       - "127.0.0.1:${DOCKER_WEB_PORT:-8088}:80"
     depends_on:
-      - gateway
+      api:
+        condition: service_healthy
 
 volumes:
   chroma:

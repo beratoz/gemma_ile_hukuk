@@ -31,7 +31,8 @@ env/
 # ─── ChromaDB vector database (large binary, rebuilt locally via tck_indeksleme.py) ───
 tck_chromadb/
 
-# ─── RAG JSON sources are included; PDFs and unused source files stay local ──
+# ─── Ham kaynaklar yerelde kalır (PDF, ara JSON, txt); repoda yalnızca 5 RAG JSON + ontoloji ──
+*.pdf
 ceza_kanunu_duzeltilmis/
 ceza_kanunu_duzeltilmis_2/tck_basliklar_resmi.json
 ceza_kanunu_duzeltilmis_2/tck_hiyerarsi.json
@@ -44,19 +45,9 @@ eklenebilir_hukuk/*
 !eklenebilir_hukuk/genelhukumler_rag.json
 hukuk_sozlugu/hukuk-terminoloji-110615.pdf
 
-# ─── Java / Maven (legacy gateway, replaced by dotnet-gateway) ────────────────
+# ─── Eski gateway derleme çıktıları (Java/Maven, .NET) ─────────────────────────
 target/
-*.class
-.mvn/
-HELP.md
-*.iml
-
-# ─── .NET / C# ────────────────────────────────────────────────────────────────
-dotnet-gateway/bin/
-dotnet-gateway/obj/
-dotnet-gateway/*.user
-dotnet-gateway/.vs/
-*.suo
+dotnet-gateway/
 *.user
 
 # ─── Node / frontend ──────────────────────────────────────────────────────────
