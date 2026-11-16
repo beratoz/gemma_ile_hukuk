@@ -24,6 +24,7 @@ from pydantic import BaseModel, Field
 from sentence_transformers import SentenceTransformer
 
 from prompts import MISSING_CHECK_PROMPT, SISTEM_PROMPTU, TERCUMAN_PROMPTU
+from penalties import build_penalty_index, penalty_table, range_warning, unsupported_ranges
 from retrieval import BM25Index, _explicit_article_refs, _retrieve_articles
 
 # --- 1. KONFİGÜRASYON (.env'den okunur) ---
@@ -144,8 +145,12 @@ def _expand_with_halk_dili(question: str, halk_index: dict[str, str]) -> list[st
     found: list[str] = []
     seen_resmi: set[str] = set()
     for halk_word, resmi in halk_index.items():
-        # \b ile kelime sınırı kontrolü — kısmî eşleşmeleri ele
-        pattern = r"\b" + re.escape(halk_word) + r"\b"
+        # \b ile kelime sınırı kontrolü — kısmî eşleşmeleri ele.
+        # Sonu "*" olan karşılıklar kök eşleşmesidir: "çaldı*" → çaldı, çaldılar.
+        if halk_word.endswith("*"):
+            pattern = r"\b" + re.escape(halk_word[:-1])
+        else:
+            pattern = r"\b" + re.escape(halk_word) + r"\b"
         if re.search(pattern, q_lower):
             if resmi not in seen_resmi:
                 seen_resmi.add(resmi)
@@ -285,6 +290,8 @@ async def lifespan(app: FastAPI):
     records = app.state.collection.get(where={"mulga": False}, include=["documents", "metadatas"])
     app.state.lexical_index = BM25Index(records)
     print(f"Hibrit arama hazır: {len(app.state.lexical_index.hits)} aktif parça.")
+    app.state.penalty_index = build_penalty_index(records)
+    print(f"Ceza tablosu hazır: {len(app.state.penalty_index)} madde.")
 
     if ONTOLOGY_PATH and os.path.isfile(ONTOLOGY_PATH):
         with open(ONTOLOGY_PATH, "r", encoding="utf-8") as file:
@@ -372,6 +379,7 @@ async def _analysis_events(request: AnalyzeRequest, state):
                 )
 
             metadata = {"cikarilan_kavramlar": concepts, "bulunan_madde_numaralari": refs}
+            table = penalty_table(refs, getattr(state, "penalty_index", {}))
             yield {"type": "sources", **metadata}
             stage = "Mütalaa üretimi"
             yield {"type": "progress", "message": "Yanıt hazırlanıyor…"}
@@ -379,7 +387,7 @@ async def _analysis_events(request: AnalyzeRequest, state):
             stream = await state.llm_client.chat.completions.create(
                 model=LM_MODEL_NAME,
                 messages=[{"role": "system", "content": SISTEM_PROMPTU},
-                          {"role": "user", "content": f"{articles}SORU:\n{question}"}],
+                          {"role": "user", "content": f"{articles}{table}SORU:\n{question}"}],
                 temperature=0.1, max_tokens=4000, stream=True,
             )
             truncated = False
@@ -398,6 +406,11 @@ async def _analysis_events(request: AnalyzeRequest, state):
             if truncated:
                 yield {"type": "error", "message": "Yanıt modelin çıktı sınırına ulaştığı için tamamlanamadı. Görünen metin kısmi yanıttır."}
                 return
+            # Kaynakta karşılığı olmayan ceza aralıklarını kullanıcıya açıkça işaretle.
+            warning = range_warning(unsupported_ranges("".join(parts), articles + table))
+            if warning:
+                parts.append(warning)
+                yield {"type": "token", "content": warning}
             response = AnalyzeResponse(soru=request.soru, mutalaa="".join(parts).strip(), **metadata)
             yield {"type": "result", **response.model_dump()}
         except Exception as error:

@@ -11,6 +11,9 @@ if TYPE_CHECKING:
     import chromadb
     from sentence_transformers import SentenceTransformer
 
+# Başlık eşleşmesinde yalnızca kanun maddeleri (gerekçe/doktrin değil) aday olur.
+TITLE_SOURCES = ("TCK", "CMK")
+
 
 def _format_retrieved_hit(
     doc: str, meta: dict, doc_id: str, index: int
@@ -114,6 +117,25 @@ class BM25Index:
                 break
         return hits
 
+    def title_hits(self, concept: str, sources=TITLE_SOURCES, limit: int = 2) -> list[dict]:
+        """Kavram bir kanun maddesinin başlığında bütün olarak geçiyorsa o maddeyi döndür.
+
+        Örn. "meşru savunma" → TCK 25 "Meşru Savunma ve Zorunluluk Hâli".
+        Tam eşleşen (en kısa) başlık önce gelir; gerekçe/doktrin başlıkları dahil edilmez.
+        """
+        words = _search_tokens(concept)
+        if not words:
+            return []
+        size = len(words)
+        found = {}
+        for hit, title in zip(self.hits, self.titles):
+            if hit["meta"].get("kaynak_kodu", "TCK") not in sources or hit["display_key"] in found:
+                continue
+            if any(title[i:i + size] == words for i in range(len(title) - size + 1)):
+                found[hit["display_key"]] = (len(title), hit)
+        ordered = sorted(found.values(), key=lambda item: (item[0], item[1]["display_key"]))
+        return [hit for _, hit in ordered[:limit]]
+
 
 def _retrieve_articles(
     search_text: str,
@@ -156,6 +178,9 @@ def _retrieve_articles(
         add_ranking(hits)
         if lexical_index:
             add_ranking(lexical_index.search(query, per_query_k))
+            if query != search_text:
+                # Kavram adı madde başlığıyla örtüşüyorsa (ör. "meşru savunma" → TCK 25) ek oy ver.
+                add_ranking(lexical_index.title_hits(query))
 
     # Açıkça istenen madde, anlamsal benzerliğin gölgesinde kalmasın.
     explicit_keys = _explicit_article_refs(search_text)

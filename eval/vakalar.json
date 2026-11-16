@@ -1,0 +1,20 @@
+[
+  {"id": "kavga-kufur-tokat", "soru": "Komşum kavga sırasında bana küfür etti ve yüzüme tokat attı. Ne ceza alır?", "beklenen": [["TCK 125"], ["TCK 86"]], "ek": [["TCK 29", "TCK 129"]]},
+  {"id": "cuzdan-calma", "soru": "Otobüste biri cüzdanımı çaldı, cezası ne olur?", "beklenen": [["TCK 141", "TCK 142"]]},
+  {"id": "konuta-zorla-girme", "soru": "Eski eşim gece kapıyı kırıp evime zorla girdi.", "beklenen": [["TCK 116"]], "ek": [["TCK 151"]]},
+  {"id": "ofis-saldiri", "soru": "Biri ofisime zorla girdi, bilgisayarımı kırdı ve bana hakaret etti.", "beklenen": [["TCK 116"], ["TCK 151"], ["TCK 125"]]},
+  {"id": "santaj-fotograf", "soru": "Eski sevgilim para vermezsem özel fotoğraflarımı internette yayacağını söylüyor.", "beklenen": [["TCK 107"]], "ek": [["TCK 134"]]},
+  {"id": "olum-tehdidi", "soru": "Komşum seni öldüreceğim diye mesaj attı.", "beklenen": [["TCK 106"]]},
+  {"id": "bicakla-yaralama", "soru": "Tartıştığı adamı bıçakla bacağından yaraladı.", "beklenen": [["TCK 86"]], "ek": [["TCK 87"]]},
+  {"id": "kapkac", "soru": "Sokakta biri zorla çantamı elimden çekip kaçtı, beni de itti.", "beklenen": [["TCK 148", "TCK 141", "TCK 142"]]},
+  {"id": "telefon-kirma", "soru": "Arkadaşım sinirlenip telefonumu yere atıp kırdı.", "beklenen": [["TCK 151"]]},
+  {"id": "internet-dolandiricilik", "soru": "İnternetten ürün aldım, parayı gönderdim ama satıcı ürünü göndermedi, ulaşamıyorum.", "beklenen": [["TCK 157", "TCK 158"]]},
+  {"id": "gizli-ses-kaydi", "soru": "İş arkadaşım benimle yaptığı konuşmayı gizlice kaydedip patrona dinletti.", "beklenen": [["TCK 133"]]},
+  {"id": "ozel-fotograf-paylasma", "soru": "Biri izinsiz olarak özel fotoğraflarımı sosyal medyada paylaştı.", "beklenen": [["TCK 134"]]},
+  {"id": "alkollu-arac", "soru": "Aşırı alkollü şekilde araç kullanıp trafikte başkalarını tehlikeye attı.", "beklenen": [["TCK 179"]]},
+  {"id": "rusvet", "soru": "Belediyedeki memur ruhsat vermek için benden para istedi.", "beklenen": [["TCK 252", "TCK 250"]]},
+  {"id": "mesru-savunma", "soru": "Bana bıçakla saldıran kişiyi kendimi korumak için ittim, düştü ve yaralandı. Ceza alır mıyım?", "beklenen": [["TCK 25"]], "ek": [["TCK 86"]]},
+  {"id": "tutuklama", "soru": "Tutuklama nedenleri nelerdir?", "beklenen": [["CMK 100"]]},
+  {"id": "hagb", "soru": "Hükmün açıklanmasının geri bırakılması nedir, şartları nelerdir?", "beklenen": [["CMK 231"]]},
+  {"id": "madde-sorusu", "soru": "TCK 116 neyi düzenler?", "beklenen": [["TCK 116"]]}
+]

@@ -12,7 +12,8 @@ Halk ağzıyla yazılmış olayları analiz eder, **5 farklı hukuki kaynaktan**
 |---|---|
 | 🔒 **%100 Yerel** | Hiçbir veri internete çıkmaz |
 | 📚 **Multi-Corpus** | 5 farklı kaynak, 1695+ doküman |
-| 🧠 **Halk Dili Anlama** | 107 hukuki kavram, 499 halk dili eşlemesi |
+| 🧠 **Halk Dili Anlama** | 118 hukuki kavram, 578 halk dili eşlemesi (kök eşleşmesiyle: "çaldı*" → çaldılar) |
+| ⚖️ **Ceza Tablosu ve Kontrol** | Fıkra bazında ceza/şikâyet tablosu; yanıttaki kaynaksız ceza aralıkları otomatik işaretlenir |
 | 🔍 **4 Aşamalı Pipeline** | Tercüman → Multi-Query Retrieval → Eksik Suç Kontrolü → Mütalaa |
 | 📐 **Hukuk Metodolojisi** | 5-adımlı per-suç analiz şablonu |
 | ⚡ **Halüsinasyon Koruması** | Resmi başlıklar + hukuka aykırılık kontrolü + sıkı prompt mühendisliği |
@@ -117,21 +118,26 @@ Sonraki açılışlarda `docker compose up -d`, kapatmak için `docker compose d
 
 Docker imajları Linux üzerinde başarıyla derlendi. Kod/veri klasörünün boyutu Python çalışma ortamını, E5 önbelleğini ve Docker derleme önbelleğini kapsamaz. Docker Windows'ta kullanıcı dizininde kuruluysa terminali yeniden açmanız veya Docker'ın `resources/bin` dizinini PATH'e eklemeniz gerekebilir.
 
-30 Ekim 2026 tarihli `docker system df -v` ölçümü (o tarihte ayrıca 343 MB'lık .NET gateway imajı vardı; artık kullanılmıyor):
+16 Kasım 2026 tarihli temiz kurulum ölçümü (`docker system df -v`, .NET gateway kaldırıldıktan sonra):
 
 | Bileşen | Docker'ın bildirdiği disk kullanımı |
 |---|---:|
-| Python / RAG imajı (CPU kütüphaneleri + beş JSON kaynak) | 2,55 GB |
+| Python / RAG imajı (CPU kütüphaneleri + beş JSON kaynak) | 2,57 GB |
 | Arayüz / Nginx imajı | 93 MB |
 | E5 model volume'u | 1,13 GB |
+| ChromaDB indeks volume'u | 25 MB |
 
-Çalışma bileşenleri, indeksle birlikte yaklaşık **3,9 GB** tutar. Gemma ve Docker Desktop/WSL bu toplamın dışındadır. Derleme sırasında ayrıca SDK, Node ve Docker build cache alanı oluşur. Build cache ölçümü 4,45 GB'tır; imajlarla paylaşılan katmanlar içerdiği için bu rakam doğrudan toplamın üzerine eklenmez. Bunlar disk ölçümleridir; internet aktarım miktarı değildir.
+Çalışma bileşenleri yaklaşık **3,8 GB** tutar (30 Ekim'de .NET imajıyla birlikte yaklaşık 4,2 GB idi). Gemma ve Docker Desktop/WSL bu toplamın dışındadır. Derleme sırasında ayrıca Docker build cache oluşur (bu kurulumda yaklaşık 3,1 GB); `docker builder prune` ile silinebilir. İmajlarla paylaşılan katmanlar içerdiği için bu rakam doğrudan toplamın üzerine eklenmez. Bunlar disk ölçümleridir, internet aktarım miktarı değildir.
+
+> Docker imajları Git reposuna konmaz (GitHub dosya sınırı 100 MB). Repodaki `Dockerfile`, `compose.yaml`, `nginx.conf`, `docker_setup.py` ve `.dockerignore` aynı imajları herhangi bir bilgisayarda yeniden üretmek için yeterlidir.
 
 Docker davranışı için başvurular: [Compose başlangıç sırası](https://docs.docker.com/compose/how-tos/startup-order/), [Docker build context ve ignore kuralları](https://docs.docker.com/build/concepts/context/).
 
 Docker ile doğrulananlar (30 Ekim 2026): beş JSON kaynağının SHA256 değerleri yerel dosyalarla eşleşti; indeks TCK 364, TCK_GEREKCE 487, CMK 407, CGTIK 231 ve TCK_DOKTRIN 206 parça içerdi. `/health` sonucu `ok`, LM Studio erişimi başarılı. Nginx → .NET → FastAPI → E5/ChromaDB → Gemma zincirinde gerçek yanıt 180 SSE parçasıyla tamamlandı; örnek denemede ilk metin 34,7 saniye, tamamlanma 41,2 saniyeydi. Bu tek örnek genel hız veya hukuki doğruluk puanı değildir. Çevrimdışı `setup` tekrarında indeksleme yapılmadı; Python bağımlılık kontrolü temiz çıktı. İmajda PDF veya `.env` bulunmadığı doğrulandı.
 
 Konteynerler silinip yeniden oluşturulduğunda E5 ve 1695 kayıt korundu. SSE istemcisi ilk metinden sonra bağlantıyı kapattığında üretim iptal edildi; sonraki ek soru isteği 3,2 saniyede tamamlandı.
+
+Docker ile doğrulananlar (16 Kasım 2026, temiz kurulum, gateway'siz): Docker tamamen boşken `setup` E5'i indirdi ve beş kaynaktan **1695 kayıtlık** indeksi oluşturdu; indeksleme doğrulama sorularının hepsi ✓. `docker compose up --build -d` ile `api` (healthy) ve `web` başladı. API açılışta 1692 aktif BM25 parçası ve 300 maddelik ceza tablosu yükledi. `/health` sonucu `ok`, LM Studio'ya `host.docker.internal` üzerinden erişildi. Nginx → FastAPI zincirinde boş soru 422 döndü. Arayüz `http://localhost:8088`'de açıldı ve paket `/api/v1/analyze` adresiyle derlendi. Gerçek Gemma 4 E2B ile "ofise zorla girme, bilgisayar kırma, hakaret" sorusu **82 saniyede** tamamlandı: TCK 116, 151 ve 125 bulundu, ceza aralıkları tablodan doğru aktarıldı, 116/4 nitelikli hali de belirtildi. Zayıf yön: işyeri için 116/2 yerine 116/1 aralığı uygulandı.
 
 ### Docker olmadan mevcut kurulum
 
@@ -173,11 +179,11 @@ cd frontend && npm install && cd ..
 ### 6. LM Studio
 Bu bilgisayarda mevcut **Gemma 4 E2B, Q4_K_M** modeli kullanılır (`google/gemma-4-e2b`). Başka model indirmek gerekmez. Yerel API sunucusu açık ve port 1234 olmalıdır. Bağlam ve çıktı toplamı yüklenmiş bağlam sınırına sığmalıdır.
 
-28 Ekim 2026 tarihinde mevcut model için tek eşzamanlı üretim ve 8500 token bağlam isteğiyle yükleme yapıldı. LM Studio bunu 8704 token olarak uyguladı; görünen GPU kullanımı yaklaşık 2,6 GB idi. Aynı oturum ayarını mevcut yerel dosyayla yeniden uygulamak için:
+Önerilen yükleme: **9216 token bağlam, tek paralel slot** (ceza tablosu için bağlam 8500'den artırıldı; 16 Kasım 2026'da bu ayarla test edildi). 28 Ekim 2026 tarihinde mevcut model için tek eşzamanlı üretim ve 8500 token bağlam isteğiyle yükleme yapılmıştı. LM Studio bunu 8704 token olarak uyguladı; görünen GPU kullanımı yaklaşık 2,6 GB idi. Aynı oturum ayarını mevcut yerel dosyayla yeniden uygulamak için:
 
 ```powershell
 lms unload google/gemma-4-e2b
-lms load google/gemma-4-e2b --context-length 8500 --parallel 1 --yes
+lms load google/gemma-4-e2b --context-length 9216 --parallel 1 --yes
 lms server start --port 1234
 ```
 
@@ -194,6 +200,46 @@ FastAPI terminalinde önce `conda activate hukuk` çalıştırın.
 | React | `cd frontend && npm run dev` | 5173 |
 
 Tarayıcıda aç: **http://localhost:5173**
+
+---
+
+## 📈 Hukuki Kalite İyileştirmeleri — 16 Kasım 2026
+
+Model değiştirilmeden (Gemma 4 E2B) modele giden kaynakların doğruluğu ve ceza bilgisinin kaynağa bağlılığı artırıldı.
+
+### ➕ Eklenenler
+
+| Ne | Ne işe yarar |
+|---|---|
+| `eval/vakalar.json` + `eval/arama_degerlendir.py` | 18 vakalık ölçüm seti. Her vakada bulunması zorunlu ve "olması iyi" maddeler var. `python eval/arama_degerlendir.py` LLM'siz, `--llm` ile Aşama 1 LM Studio'da çalışır. Hukuki doğruluğu değil, modele doğru kaynağın gidip gitmediğini ölçer. |
+| `penalties.py` — ceza tablosu | Bulunan TCK maddelerinin fıkralarından ceza ve şikâyet cümleleri çıkarılır ve mütalaa çağrısına kısa bir "CEZA VE ŞİKÂYET TABLOSU" olarak eklenir (en çok ~1800 karakter, madde başına 5 satır). Model temel fıkranın yanında hafif/nitelikli halleri (ör. 86/2, 116/4) ayrı satırlar olarak görür. |
+| `penalties.py` — aralık doğrulaması | Yanıttaki "X'den Y'ye kadar" aralıkları sayıya çevrilir ("bir yıl altı ay" = "18 ay") ve kaynak metinlerle karşılaştırılır. Kaynakta karşılığı olmayan aralık varsa yanıtın sonuna "⚠️ Otomatik kontrol" notu eklenir. |
+| Ontoloji: 11 temel suç | Hırsızlık, kasten yaralama, tehdit, konut dokunulmazlığı (işyeri dahil), mala zarar verme, yağma, şantaj, dolandırıcılık, konuşmaların kayda alınması, özel hayatın gizliliği, meşru savunma. Önceki 107 kavramda bu temel suçlar yoktu. |
+| Kök eşleşmesi | Sonu `*` olan halk dili karşılıkları kelime başından eşleşir: `çaldı*` → "çaldılar"; "çalıştım" eşleşmez. |
+| Başlık eşleşmesi (`retrieval.py`) | Kavram bir TCK/CMK maddesinin başlığında bütün olarak geçiyorsa o maddeye aramada ek oy verilir (ör. "meşru savunma" → TCK 25). |
+| 6 yeni test | Ceza tablosu, aralık ayrıştırma, kaynaksız aralık uyarısı, başlık ve kök eşleşmesi. Toplam 23 test. |
+
+### 🔁 Değişenler
+
+- **Mütalaa promptu (`prompts.py`):** "Temel ceza aralığını kategorik bilgi olarak ver" izni kaldırıldı. Aralık tablodan veya kaynaktan AYNEN alınır, kaynakta yoksa yazılmaz. Model olaya uyan fıkrayı seçip gerekçelendirir. Yaygın yanlışlara iki madde eklendi: kavgada haksız tahrik (TCK 29) ve karşılıklı hakaret (TCK 129) ihtimali, hafif/nitelikli fıkrayı atlamak.
+- **LM Studio önerisi:** 9216 token bağlam ve tek paralel slot. Ceza tablosu yaklaşık 500 token ekler.
+
+### 📊 Ölçüm sonuçları (18 vaka, 21 zorunlu madde, N_RESULTS=8)
+
+| Mod | Önce | Sonra |
+|---|---:|---:|
+| Kavramlar LM Studio ile (`--llm`, gerçek pipeline'a yakın) | 16/21 = %76 | **21/21 = %100** |
+| LLM'siz (soru + ontoloji) | 9/21 = %43 | **19/21 = %90** |
+| "Olması iyi" maddeler (`--llm`) | 1/5 = %20 | 3/5 = %60 |
+
+Aşama 1'de sıcaklık 0,3 olduğu için `--llm` sonuçları çalıştırmadan çalıştırmaya biraz değişebilir.
+
+### 🧪 Gerçek Gemma 4 E2B ile kontrol (9216 bağlam, tek slot)
+
+- **Kavga, küfür ve tokat (81 sn):** TCK 125/1, 125/4 ve 86/1 doğru aktarıldı. **86/2 hafif yaralama ve şikâyet şartı ayrıca değerlendirildi**; önceki sürümde bu yoktu. Otomatik kontrol, yanıtın bir yerinde 86/2 için yanlış yazılan "altı aydan bir yıla kadar" aralığını doğru şekilde işaretledi. Zayıf yönler: haksız tahrik ele alınmadı (TCK 29 bu çalıştırmada kaynaklara girmedi). Hakaretin şikâyete bağlılığı TCK 131'de düzenlendiği ve kaynaklarda olmadığı için bu kısım belirsiz/hatalı anlatıldı.
+- **Gece kapıyı kırıp eve girme ve tehdit (107 sn):** Avukat değerlendirmesinde önceden kaçırılan **TCK 116/4 (gece vakti, cebir/tehdit) nitelikli hali doğru tespit edildi**. TCK 151 mala zarar verme ve TCK 106 tehdit de bulundu. Zayıf yön: "Bu suçların tamamı şikâyete bağlıdır" genellemesi hatalı; 116/4 ve tehdidin temel hali şikâyete bağlı değildir.
+
+Sonuç: Kaynak bulma ve fıkra seçimi belirgin şekilde iyileşti. Küçük modelin usul bilgisi (şikâyet, HAGB) ve genellemeleri hâlâ avukat kontrolü gerektirir.
 
 ---
 
@@ -233,7 +279,7 @@ Amaç, hukuki çıktıyı (promptlar, arama, model ayarları) değiştirmeden pr
 - 17 regresyon testi geçti; hem tam bağımlılıklarla (`hukuk` ortamı) hem bağımlılıksız AST modunda çalıştırıldı.
 - Frontend lint ve üretim derlemesi hatasız.
 - API gerçek ChromaDB ile açıldı: `/health` → `ok`, 1695 kayıt, LM Studio erişilebilir. Boş soru 422 dönüyor, `localhost:5173` için CORS izinli.
-- Gerçek Gemma 4 E2B ile iki soru uçtan uca tamamlandı: çok fiilli olay (küfür + tokat) 104 sn, doğrudan madde sorusu (`TCK 116 neyi düzenler?`) 73 sn. Teknik akışı doğrular; hukuki doğruluk ayrıca değerlendirilmelidir. Örneğin ilk yanıtta TCK 86'nın ceza aralığı hatalıydı ve haksız tahrik (TCK 129) ele alınmadı.
+- Gerçek Gemma 4 E2B ile iki soru uçtan uca tamamlandı: çok fiilli olay (küfür + tokat) 104 sn, doğrudan madde sorusu (`TCK 116 neyi düzenler?`) 73 sn. Teknik akışı doğrular; hukuki doğruluk ayrıca değerlendirilmelidir. İlk yanıtta TCK 86/1 aralığı kaynakla uyumluydu (güncel metin: bir yıl altı aydan üç yıla); ancak tokat için 86/2 (hafif yaralama) ve kavgada haksız tahrik (TCK 29) / karşılıklı hakaret (TCK 129) değerlendirilmedi. Bu eksikler aşağıdaki iyileştirmelerin konusu oldu.
 - Docker imajları bu değişiklikten sonra yeniden derlenmedi.
 
 ---
@@ -290,7 +336,10 @@ Doğruluk oranı **%60-80** aralığında. Çoklu suç tespiti, içtima değerle
 - [x] Gerçek ilerleme aşamaları ve streamed response
 - [x] Silinebilir, kapatılabilir yerel sohbet kaydı
 - [x] Olay başına en fazla bir ek soru ve atlama seçeneği
-- [ ] Donanım üzerinde yeni arama kalitesini örnek vakalarla değerlendirme
+- [x] Arama kalitesini örnek vakalarla ölçme (`eval/`, 18 vaka)
+- [x] Fıkra bazında ceza tablosu ve ceza aralığı doğrulaması
+- [ ] Ölçüm setini genişletme ve yanıt kalitesini (LLM çıktısı) otomatik puanlama
+- [ ] Her suç için ayrı mütalaa çağrısı ve cross-encoder re-ranker (gerekirse)
 - [ ] Sınırlı konuşma bağlamı (mevcut kayıt özelliği modele geçmişi göndermez)
 - [ ] Ek kanunlar (TMK, İİK)
 
@@ -319,7 +368,9 @@ Arayüz API adresi isteğe bağlı `VITE_API_URL` ile değiştirilebilir (varsay
 ```
 ├── main.py                         # FastAPI RAG Engine (pipeline + SSE ucu)
 ├── prompts.py                      # LLM promptları (tercüman, mütalaa, eksik suç)
-├── retrieval.py                    # Hibrit arama: E5 + BM25, RRF
+├── retrieval.py                    # Hibrit arama: E5 + BM25 + başlık eşleşmesi, RRF
+├── penalties.py                    # Fıkra bazında ceza tablosu ve ceza aralığı doğrulaması
+├── eval/                           # Ölçüm seti (vakalar.json) ve arama değerlendirme scripti
 ├── tck_indeksleme.py               # ChromaDB indeksleme scripti
 ├── test_main.py                    # Model/GPU gerektirmeyen çekirdek regresyon testleri
 ├── requirements.txt                # Python bağımlılıkları
@@ -336,7 +387,7 @@ Arayüz API adresi isteğe bağlı `VITE_API_URL` ile değiştirilebilir (varsay
 ├── compose.yaml                   # İlk hazırlık, API ve web servisleri
 ├── docker_setup.py                # E5 önbelleği ve tam veri indeksleme
 ├── nginx.conf                     # Arayüz sunumu ve FastAPI'ye SSE proxy
-└── hukuk_sozlugu/                  # Hukuk ontolojisi (107 kavram, 499 eşleme)
+└── hukuk_sozlugu/                  # Hukuk ontolojisi (118 kavram, 578 eşleme)
 ```
 
 ---
