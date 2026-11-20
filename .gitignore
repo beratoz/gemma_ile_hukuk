@@ -28,22 +28,11 @@ __pycache__/
 venv/
 env/
 
-# ─── ChromaDB vector database (large binary, rebuilt locally via tck_indeksleme.py) ───
-tck_chromadb/
-
-# ─── Ham kaynaklar yerelde kalır (PDF, ara JSON, txt); repoda yalnızca 5 RAG JSON + ontoloji ──
+# ─── Yerel veri: ChromaDB indeksi ve ham kaynaklar (PDF, ara JSON, txt) ──────────
+# Repoda yalnızca data/rag/ (5 RAG JSON) ve data/ontoloji/ bulunur.
+data/chromadb/
+data/ham/
 *.pdf
-ceza_kanunu_duzeltilmis/
-ceza_kanunu_duzeltilmis_2/tck_basliklar_resmi.json
-ceza_kanunu_duzeltilmis_2/tck_hiyerarsi.json
-ceza_kanunu_duzeltilmis_2/tck_meta.json
-ceza_kanunu_duzeltilmis_2/tck_rag_chunks.json
-eklenebilir_hukuk/*
-!eklenebilir_hukuk/tck_gerekceleri_rag.json
-!eklenebilir_hukuk/cmk_rag.json
-!eklenebilir_hukuk/cgtik_rag.json
-!eklenebilir_hukuk/genelhukumler_rag.json
-hukuk_sozlugu/hukuk-terminoloji-110615.pdf
 
 # ─── Eski gateway derleme çıktıları (Java/Maven, .NET) ─────────────────────────
 target/

@@ -6,15 +6,14 @@ ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
-COPY requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN useradd --uid 10001 --create-home app \
     && mkdir -p /data/chroma /data/huggingface \
     && chown -R app:app /data
-COPY main.py prompts.py retrieval.py penalties.py tck_indeksleme.py docker_setup.py ./
-COPY ceza_kanunu_duzeltilmis_2/tck_rag.json ./datasets/tck_rag.json
-COPY eklenebilir_hukuk/tck_gerekceleri_rag.json eklenebilir_hukuk/cmk_rag.json eklenebilir_hukuk/cgtik_rag.json eklenebilir_hukuk/genelhukumler_rag.json ./datasets/
-COPY hukuk_sozlugu/ceza_hukuku_ontolojisi.json ./ontology.json
+COPY backend/main.py backend/prompts.py backend/retrieval.py backend/penalties.py backend/tck_indeksleme.py backend/docker_setup.py ./
+COPY data/rag/tck_rag.json data/rag/tck_gerekceleri_rag.json data/rag/cmk_rag.json data/rag/cgtik_rag.json data/rag/genelhukumler_rag.json ./datasets/
+COPY data/ontoloji/ceza_hukuku_ontolojisi.json ./ontology.json
 USER app
 EXPOSE 8000
 CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--no-access-log"]
@@ -28,6 +27,6 @@ ENV VITE_API_URL=/api/v1/analyze
 RUN npm run build
 
 FROM nginx:stable-alpine AS web
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=web-build /src/dist /usr/share/nginx/html
 EXPOSE 80

@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "backend"))
 os.chdir(ROOT)
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
 os.environ.setdefault("ANONYMIZED_TELEMETRY", "False")
@@ -26,7 +26,7 @@ import chromadb  # noqa: E402
 from openai import AsyncOpenAI  # noqa: E402
 from sentence_transformers import SentenceTransformer  # noqa: E402
 
-import main  # noqa: E402  (.env doğrulaması ve yardımcı fonksiyonlar)
+import main  # noqa: E402  (backend/main.py: .env doğrulaması ve yardımcı fonksiyonlar)
 from penalties import build_penalty_index, penalty_table  # noqa: E402
 from retrieval import BM25Index, _retrieve_articles  # noqa: E402
 
