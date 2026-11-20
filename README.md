@@ -110,7 +110,7 @@ docker compose up --build -d
 
 Tarayıcıda **http://localhost:8088** adresini açın. Gemma'nın LM Studio API model kimliği farklıysa `.env` dosyasında `DOCKER_LM_MODEL_NAME` değerini düzenleyin (örnekler `.env.example` içinde). Docker varsayılanlarıyla `.env` oluşturmak zorunlu değildir; mevcut yerel `.env` dosyanızı değiştirmeyin. İsteğe bağlı `DOCKER_WEB_PORT` arayüz portunu değiştirir.
 
-İlk `setup` komutu yalnızca **E5 arama modelini (~1,13 GB)** indirir ve beş JSON kaynağının tamamını indeksler. Gemma indirilmez, hiçbir model imaja gömülmez. E5 ve oluşturulan ChromaDB ayrı Docker volume'larında kalır; tekrar hazırlıkta tamamlanmış indeks korunur ve tam E5 önbelleği varsa internet gerekmez. Normal API çalışması model indirmez. Yerel `tck_chromadb` klasörüne dokunulmaz; Docker aynı kaynaklardan kendi **1695 kayıtlık koleksiyonunu** oluşturur. JSON içerikleri değişirse hazırlık eski indeksin üzerine yazmaz; kaynak değişikliğinde yeni bir indeks volume'u hazırlanmalıdır.
+İlk `setup` komutu yalnızca **E5 arama modelini (~1,13 GB)** indirir ve beş JSON kaynağının tamamını indeksler. Gemma indirilmez, hiçbir model imaja gömülmez. E5 ve oluşturulan ChromaDB ayrı Docker volume'larında kalır; tekrar hazırlıkta tamamlanmış indeks korunur ve tam E5 önbelleği varsa internet gerekmez. Normal API çalışması model indirmez. Yerel `data/chromadb` klasörüne dokunulmaz; Docker aynı kaynaklardan kendi **1695 kayıtlık koleksiyonunu** oluşturur. JSON içerikleri değişirse hazırlık eski indeksin üzerine yazmaz; kaynak değişikliğinde yeni bir indeks volume'u hazırlanmalıdır.
 
 Sonraki açılışlarda `docker compose up -d`, kapatmak için `docker compose down` yeterlidir. `down` kayıtlı E5 ve indeks volume'larını korur. **`docker compose down -v` bu iki volume'u siler** ve ilk hazırlığın yeniden yapılmasını gerektirir. Sohbet kaydı tarayıcıda kalır; arayüzden ayrıca silinir.
 
@@ -129,7 +129,7 @@ Docker imajları Linux üzerinde başarıyla derlendi. Kod/veri klasörünün bo
 
 Çalışma bileşenleri yaklaşık **3,8 GB** tutar (30 Ekim'de .NET imajıyla birlikte yaklaşık 4,2 GB idi). Gemma ve Docker Desktop/WSL bu toplamın dışındadır. Derleme sırasında ayrıca Docker build cache oluşur (bu kurulumda yaklaşık 3,1 GB); `docker builder prune` ile silinebilir. İmajlarla paylaşılan katmanlar içerdiği için bu rakam doğrudan toplamın üzerine eklenmez. Bunlar disk ölçümleridir, internet aktarım miktarı değildir.
 
-> Docker imajları Git reposuna konmaz (GitHub dosya sınırı 100 MB). Repodaki `Dockerfile`, `compose.yaml`, `nginx.conf`, `docker_setup.py` ve `.dockerignore` aynı imajları herhangi bir bilgisayarda yeniden üretmek için yeterlidir.
+> Docker imajları Git reposuna konmaz (GitHub dosya sınırı 100 MB). Repodaki `Dockerfile`, `compose.yaml`, `docker/nginx.conf`, `backend/docker_setup.py` ve `.dockerignore` aynı imajları herhangi bir bilgisayarda yeniden üretmek için yeterlidir.
 
 Docker davranışı için başvurular: [Compose başlangıç sırası](https://docs.docker.com/compose/how-tos/startup-order/), [Docker build context ve ignore kuralları](https://docs.docker.com/build/concepts/context/).
 
@@ -151,12 +151,12 @@ cd gemma_ile_hukuk
 ```bash
 conda create -n hukuk python=3.11 -y
 conda activate hukuk
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 Python paketleri yalnızca `hukuk` ortamına kurulmalıdır. Embedding modeli CPU üzerinde ve `local_files_only=True` ile açılır: **model dosyası otomatik indirilmez**. `intfloat/multilingual-e5-base` dosyalarının daha önce yerel Hugging Face önbelleğine konmuş olması veya `EMBEDDING_MODEL_NAME` ayarının mevcut yerel model klasörünü göstermesi gerekir. Bu dosyalar yoksa API açılışı durur; paket kurmak model ağırlıklarını sağlamaz.
 
-Bu bilgisayardaki `hukuk` ortamında `HF_HUB_OFFLINE=1`, `HF_HUB_DISABLE_TELEMETRY=1` ve `ANONYMIZED_TELEMETRY=False` kalıcı ortam değişkenleri olarak ayarlanmıştır. Ortam `conda activate hukuk` ile etkinleştirildiğinde uygulanırlar. `requirements.txt`, CPU PyTorch ve kontrol edilen ana paket sürümlerini sabitler.
+Bu bilgisayardaki `hukuk` ortamında `HF_HUB_OFFLINE=1`, `HF_HUB_DISABLE_TELEMETRY=1` ve `ANONYMIZED_TELEMETRY=False` kalıcı ortam değişkenleri olarak ayarlanmıştır. Ortam `conda activate hukuk` ile etkinleştirildiğinde uygulanırlar. `backend/requirements.txt`, CPU PyTorch ve kontrol edilen ana paket sürümlerini sabitler.
 
 E5 modeli 29 Ekim 2026 tarihinde kullanıcı izniyle yerel önbelleğe kuruldu. `EMBEDDING_MODEL_NAME=intfloat/multilingual-e5-base` ayarıyla çevrimdışı açılır; normal kullanımda tekrar indirme gerekmez.
 
@@ -168,7 +168,7 @@ cp .env.example .env
 
 ### 4. ChromaDB İndeksleme (Tek seferlik)
 ```bash
-python tck_indeksleme.py
+python backend/tck_indeksleme.py
 ```
 
 ### 5. Frontend Bağımlılıkları
@@ -196,10 +196,36 @@ FastAPI terminalinde önce `conda activate hukuk` çalıştırın.
 | Terminal | Komut | Port |
 |---|---|---|
 | LM Studio | GUI'den başlat | 1234 |
-| FastAPI | `uvicorn main:app --port 8000` | 8000 |
+| FastAPI | `uvicorn main:app --app-dir backend --port 8000` | 8000 |
 | React | `cd frontend && npm run dev` | 5173 |
 
 Tarayıcıda aç: **http://localhost:5173**
+
+---
+
+## 🗂️ Klasör Düzeni — 20 Kasım 2026
+
+Kök dizindeki dağınıklık giderildi; kod ve davranış değişmedi.
+
+| Önce | Sonra |
+|---|---|
+| Kökte 8 Python dosyası + `requirements.txt` | `backend/` |
+| `ceza_kanunu_duzeltilmis_2/tck_rag.json`, `eklenebilir_hukuk/*_rag.json` | `data/rag/` |
+| `hukuk_sozlugu/ceza_hukuku_ontolojisi.json` | `data/ontoloji/` |
+| `tck_chromadb/` | `data/chromadb/` (yerel, gitignore) |
+| PDF'ler, ara JSON'lar, `hukuk_gerekceleri.txt` (üç farklı klasörde) | `data/ham/` altında özgün klasör adlarıyla (yerel, gitignore) |
+| `nginx.conf` | `docker/nginx.conf` |
+
+Güncellenen komutlar (proje kökünden):
+
+```bash
+uvicorn main:app --app-dir backend --port 8000
+python -m unittest backend.test_main
+python backend/tck_indeksleme.py
+python eval/arama_degerlendir.py
+```
+
+Mevcut kurulumlarda `.env` içindeki yollar `data/chromadb`, `data/rag/...` ve `data/ontoloji/...` olarak değiştirilmelidir (`.env.example` güncel). Doğrulama: 23 test hem kökten hem `backend/` içinden geçti; ölçüm sonucu değişmedi (LLM'siz %90); API iki başlatma şekliyle de açıldı (1695 kayıt); frontend lint ve build hatasız; Docker `COPY` yolları küçük bir kontrol imajıyla doğrulandı (`.env` ve PDF imaja girmiyor).
 
 ---
 
@@ -272,7 +298,7 @@ Amaç, hukuki çıktıyı (promptlar, arama, model ayarları) değiştirmeden pr
 
 - Arayüzün varsayılan API adresi `http://localhost:8080/api/chat` yerine `http://localhost:8000/api/v1/analyze` oldu (Docker'da `/api/v1/analyze`).
 - Yerel çalıştırma için LM Studio dışında 2 terminal yeterli: FastAPI ve React.
-- 8000 portu başka bir uygulama tarafından kullanılıyorsa API'yi `uvicorn main:app --port 8001` ile başlatın ve frontend'i `VITE_API_URL=http://localhost:8001/api/v1/analyze` ile çalıştırın.
+- 8000 portu başka bir uygulama tarafından kullanılıyorsa API'yi `uvicorn main:app --app-dir backend --port 8001` ile başlatın ve frontend'i `VITE_API_URL=http://localhost:8001/api/v1/analyze` ile çalıştırın.
 
 ### ✅ Doğrulama
 
@@ -366,28 +392,32 @@ Arayüz API adresi isteğe bağlı `VITE_API_URL` ile değiştirilebilir (varsay
 ## 📁 Proje Yapısı
 
 ```
-├── main.py                         # FastAPI RAG Engine (pipeline + SSE ucu)
-├── prompts.py                      # LLM promptları (tercüman, mütalaa, eksik suç)
-├── retrieval.py                    # Hibrit arama: E5 + BM25 + başlık eşleşmesi, RRF
-├── penalties.py                    # Fıkra bazında ceza tablosu ve ceza aralığı doğrulaması
-├── eval/                           # Ölçüm seti (vakalar.json) ve arama değerlendirme scripti
-├── tck_indeksleme.py               # ChromaDB indeksleme scripti
-├── test_main.py                    # Model/GPU gerektirmeyen çekirdek regresyon testleri
-├── requirements.txt                # Python bağımlılıkları
-├── .env.example                    # Konfigürasyon şablonu
+├── backend/                        # Python API (FastAPI) ve araçları
+│   ├── main.py                     # Pipeline, SSE ucu, /health
+│   ├── prompts.py                  # LLM promptları (tercüman, mütalaa, eksik suç)
+│   ├── retrieval.py                # Hibrit arama: E5 + BM25 + başlık eşleşmesi, RRF
+│   ├── penalties.py                # Fıkra bazında ceza tablosu ve ceza aralığı doğrulaması
+│   ├── tck_indeksleme.py           # ChromaDB indeksleme scripti
+│   ├── docker_setup.py             # Docker setup: E5 önbelleği + indeksleme
+│   ├── test_main.py                # Model/GPU gerektirmeyen regresyon testleri (23)
+│   └── requirements.txt            # Python bağımlılıkları
 │
 ├── frontend/                       # React + Vite + Tailwind UI
 │   └── src/
 │       ├── components/             # Chat, MessageBubble, MessageContent, EmptyState, TypingIndicator
 │       └── lib/                    # SSE okuyucu, yerel sohbet kaydı, kaynak referansı ayrıştırma
 │
-├── ceza_kanunu_duzeltilmis_2/      # TCK veri seti (tck_rag.json)
-├── eklenebilir_hukuk/             # Gerekçeler, CMK, CGTİK, genel hükümler: 4 RAG JSON
-├── Dockerfile                     # Python API ve frontend/Nginx derleme hedefleri
-├── compose.yaml                   # İlk hazırlık, API ve web servisleri
-├── docker_setup.py                # E5 önbelleği ve tam veri indeksleme
-├── nginx.conf                     # Arayüz sunumu ve FastAPI'ye SSE proxy
-└── hukuk_sozlugu/                  # Hukuk ontolojisi (118 kavram, 578 eşleme)
+├── data/
+│   ├── rag/                        # 5 RAG JSON: TCK, gerekçeler, CMK, CGTİK, genel hükümler
+│   ├── ontoloji/                   # Hukuk ontolojisi (118 kavram, 578 eşleme)
+│   ├── ham/                        # Ham kaynaklar: PDF, ara JSON, txt (yalnızca yerelde, gitignore)
+│   └── chromadb/                   # Yerel vektör indeksi (yalnızca yerelde, gitignore)
+│
+├── eval/                           # Ölçüm seti (vakalar.json) ve arama değerlendirme scripti
+├── docker/nginx.conf               # Arayüz sunumu ve FastAPI'ye SSE proxy
+├── Dockerfile                      # Python API ve frontend/Nginx derleme hedefleri
+├── compose.yaml                    # İlk hazırlık, API ve web servisleri
+└── .env.example                    # Konfigürasyon şablonu
 ```
 
 ---

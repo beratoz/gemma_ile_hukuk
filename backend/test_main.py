@@ -1,4 +1,4 @@
-"""Çekirdek regresyonları: python -m unittest -v test_main
+"""Çekirdek regresyonları: python -m unittest -v backend.test_main (kökten) veya test_main (backend/ içinden)
 
 Kütüphaneler varsa gerçek modülü ve ASGI uçlarını, yoksa saf çekirdeği AST ile
 yükler. Sunucuyu/modeli başlatmaz, paket veya model indirmez. ChromaDB/LM Studio
@@ -15,6 +15,10 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
+
+# Proje kökünden (python -m unittest backend.test_main) veya backend/ içinden çalışabilsin.
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 
 class Response:
